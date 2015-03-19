@@ -49,7 +49,10 @@
 	        	try{
 		        	stmt = conn.createStatement();
 		        	stmt.executeUpdate(sql);
+		        	conn.commit();
 		        	conn.close();
+
+		        	//success
 		        	out.println("<H1><CENTER>Change Password</CENTER></H1>");
 		       		out.println("<p>Password Changed</p>");
 					out.println("<form method=post action=homePage.jsp>");

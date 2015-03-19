@@ -53,7 +53,7 @@
             Statement stmt2 = null;
             ResultSet rset2 = null;
         	String sqlPass = "SELECT password FROM users WHERE user_name = '"+userName+"'";
-            String sqlClass = "SELECT class FROM users WHERE user_name = '"+userName+"'";
+            String sqlClass = "SELECT class, person_id FROM users WHERE user_name = '"+userName+"'";
             //debug
 	        //out.println(sql);
         	try{
@@ -69,19 +69,23 @@
 
 	        String truepwd = "";
             String trueClass = "";
+            int person_id = 0;
 	
         	while(rset1 != null && rset1.next()) {
 	        	truepwd = (rset1.getString(1)).trim();
 	        }
 
             while(rset2 != null && rset2.next()) {
-                trueClass = (rset2.getString(1)).trim();
+                trueClass = rset2.getString("class");
+                person_id = rset2.getInt("person_id");
+
             }
 
         	//display the result
 	        if(passwd.equals(truepwd)) {
                 session.setAttribute("userName", userName);
                 session.setAttribute("classType", trueClass);
+                session.setAttribute("person_id", person_id);
                 String homePage = "homePage.jsp";
 		        response.sendRedirect(homePage);
 

@@ -19,6 +19,10 @@
     out.println("<form method=post action=changePWD.jsp>");
     out.println("<input type=submit name=changePWD value=ChangePassword>");
     out.println("</form>");
+    out.println("<form method=post action=changeInfo.jsp>");
+    out.println("<input type=submit name=changeInfo value=ChangePersonalInfo>");
+    out.println("</form>");
+
     
     // display options based on user class
     if(classType.equals("a")) {
