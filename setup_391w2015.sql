@@ -4,11 +4,11 @@
  *              Winter Term, 2015
  *  Author:     Prof. Li-Yan Yuan
  */
-DROP TABLE family_doctor;
-DROP TABLE pacs_images;
-DROP TABLE radiology_record;
-DROP TABLE users;
-DROP TABLE persons;
+DROP TABLE IF EXISTS family_doctor;
+DROP TABLE IF EXISTS pacs_images;
+DROP TABLE IF EXISTS radiology_record;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS persons;
 
 /*
  *  To store the personal information
@@ -37,7 +37,7 @@ CREATE TABLE users (
    date_registered date,
    CHECK (class in ('a','p','d','r')),
    PRIMARY KEY(user_name),
-   FOREIGN KEY (person_id) REFERENCES persons
+   FOREIGN KEY (person_id) REFERENCES persons (person_id)
 );
 
 /*
@@ -46,8 +46,8 @@ CREATE TABLE users (
 CREATE TABLE family_doctor (
    doctor_id    int,
    patient_id   int,
-   FOREIGN KEY(doctor_id) REFERENCES persons,
-   FOREIGN KEY(patient_id) REFERENCES persons,
+   FOREIGN KEY(doctor_id) REFERENCES persons (person_id),
+   FOREIGN KEY(patient_id) REFERENCES persons (person_id),
    PRIMARY KEY(doctor_id,patient_id)
 );
 
@@ -65,9 +65,9 @@ CREATE TABLE radiology_record (
    diagnosis    varchar(128),
    description   varchar(1024),
    PRIMARY KEY(record_id),
-   FOREIGN KEY(patient_id) REFERENCES persons,
-   FOREIGN KEY(doctor_id) REFERENCES  persons,
-   FOREIGN KEY(radiologist_id) REFERENCES  persons
+   FOREIGN KEY(patient_id) REFERENCES persons (person_id),
+   FOREIGN KEY(doctor_id) REFERENCES  persons (person_id),
+   FOREIGN KEY(radiologist_id) REFERENCES  persons (person_id)
 );
 
 /*
@@ -80,5 +80,5 @@ CREATE TABLE pacs_images (
    regular_size blob,
    full_size    blob,
    PRIMARY KEY(record_id,image_id),
-   FOREIGN KEY(record_id) REFERENCES radiology_record
+   FOREIGN KEY(record_id) REFERENCES radiology_record (record_id)
 );
