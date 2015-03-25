@@ -17,8 +17,8 @@ class Persons(models.Model):
 
 class Users(models.Model):
 	CLASSES = (('a','Admin'), ('p', 'Patient'), ('d', 'Doctor'), ('r', 'Radiologist'))
-	#user_name = models.CharField(max_length=24, primary_key=True)
-	#password = models.CharField(max_length=24)
+	user_name = models.CharField(max_length=24, primary_key=True)
+	password = models.CharField(max_length=24)
 	classType = models.CharField(max_length=1, choices=CLASSES)
 	person_id = models.ForeignKey(Persons)
 	date_registered = models.DateField()

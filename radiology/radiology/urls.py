@@ -12,7 +12,11 @@ urlpatterns = patterns('',
     #url(r'^', views.index, name='index'),
 	url(r'^$', views.user_login, name='login'),
 	#url(r'^RadiologySys/', include('RadiologySys.urls')),
+	url(r'^login', views.user_login, name='login'),
 	url(r'^home/', views.index, name='index'),
+	url(r'^report/', views.report, name='report'),
+	url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
+
 
     
 )

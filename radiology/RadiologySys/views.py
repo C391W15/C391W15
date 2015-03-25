@@ -4,6 +4,8 @@ from django.contrib.auth import authenticate, login
 from django.template import *
 from django.shortcuts import *
 from RadiologySys.models import *
+from django.conf import settings
+from django.shortcuts import redirect
 
 # Create your views here.
 def index(request):
@@ -60,6 +62,35 @@ def user_login(request):
 			return HttpResponse("Invalid Login, Please Try Again")
 	else:
 		return render_to_response('RadiologySys/login.html', {}, context)
+
+def report(request):
+
+	context = RequestContext(request)
+
+	# Requires user to be logged in
+	if not request.user.is_authenticated():
+		return redirect('/login')
+
+	if request.method == 'POST':
+
+		# Get Diagnosis and Time-frame
+		diagnosis = request.POST['diagnosis']
+		tstart = request.POST['time_start']
+		tend = request.POST['time_end']
+
+		if tstart > tend:
+			return HttpResponse("Error: start date after end date")
+
+		print(diagnosis + " " + tstart + " " + tend)
+
+
+	else:
+		return render_to_response('RadiologySys/report.html', {}, context)
+
+
+
+
+
 
 
 

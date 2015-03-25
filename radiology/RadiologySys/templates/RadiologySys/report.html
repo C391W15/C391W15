@@ -1,0 +1,25 @@
+<!Doctype html>
+
+<html>
+
+<head>
+	<title>Reporting System</title>
+</head>
+
+<body>
+
+	<form id="report_params" method="post" action="">
+		{% csrf_token %}
+
+		Enter a Diagnosis: <input type="text" name="diagnosis" value="" size="50"/><br/>
+
+		Enter a Start Time: <input type="date" name="time_start" value="" size="50"/><br/>
+
+		Enter an End Time: <input type="date" name="time_end" value="" size="50"/><br/>
+
+		<input type="submit" value="submit"/>
+	</form>
+
+</body>
+
+</html>
