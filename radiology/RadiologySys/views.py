@@ -10,6 +10,33 @@ def index(request):
 	context = RequestContext(request)
 	return render_to_response('RadiologySys/home.html', {}, context)
 
+def change_info(request):
+	context = RequestContext(request)
+	
+	username = request.session.get('username')
+	person = (Users.objects.get(user_name=username)).person_id
+	#person = Persons.objects.get(person_id = userPerson_id)
+	firstName = person.first_name
+	lastName = person.last_name
+	address = person.address
+	email = person.email
+	phone = person.phone
+
+	request.session['first_name'] = firstName
+	request.session['last_name'] = lastName
+	request.session['address'] = address
+	request.session['email'] = email
+	request.session['phone'] = phone
+
+	if request.method == 'POST':
+
+		return render_to_response('RadiologySys/changeInfo.html', {}, context)
+
+	else:
+		return render_to_response('RadiologySys/changeInfo.html', {}, context)
+	
+
+
 
 def change_pass(request):
 	context = RequestContext(request)
@@ -23,12 +50,11 @@ def change_pass(request):
 
 		if pass1 == pass2 and pass1 != "" and pass1 != password:
 
-			request.user.set_password(pass1)
-			request.user.save()
+			user = Users.objects.get(user_name = username)
+			user.password = pass1
+			user.save()
 			messages.success(request, 'Password updated')
-			#user = authenticate(username=username, password=pass1)
-			#if user:
-			#	login(request,user)
+			
 			return render_to_response('RadiologySys/changePass.html', {}, context)
 
 		elif pass1 == password:
@@ -56,21 +82,26 @@ def user_login(request):
 		request.session['password'] = password
 
 		#user returned if valid
-		user = authenticate(username=username, password=password)
+		user = myLogin(username, password)
 
 		if user:
-			# if account is active
-			if user.is_active:
-				login(request,user)
-				return HttpResponseRedirect('/home/')
-			else:
-				return HttpResponse("Error: Account not active")
+			return HttpResponseRedirect('/home/')
+
 		else:
 			print("Invalid login credentials: {0}, {1}".format(username, password))
 			messages.warning(request, "Invalid Login, Please Try Again")
 			return render_to_response('RadiologySys/login.html', {}, context)
 	else:
 		return render_to_response('RadiologySys/login.html', {}, context)
+
+def myLogin(username, password):
+
+	user = Users.objects.get(user_name=username)
+
+	if user.password == password:
+		return user
+	else: 
+		return None
 
 
 

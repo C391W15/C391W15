@@ -2,20 +2,18 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-from django.conf import settings
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
             name='Family_doctor',
             fields=[
-                ('id', models.AutoField(auto_created=True, verbose_name='ID', primary_key=True, serialize=False)),
+                ('id', models.AutoField(primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
             ],
             options={
             },
@@ -67,11 +65,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Users',
             fields=[
-                ('id', models.AutoField(auto_created=True, verbose_name='ID', primary_key=True, serialize=False)),
+                ('user_name', models.CharField(primary_key=True, serialize=False, max_length=24)),
+                ('password', models.CharField(max_length=24)),
                 ('classType', models.CharField(choices=[('a', 'Admin'), ('p', 'Patient'), ('d', 'Doctor'), ('r', 'Radiologist')], max_length=1)),
                 ('date_registered', models.DateField()),
                 ('person_id', models.ForeignKey(to='RadiologySys.Persons')),
-                ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
             ],
             options={
             },
