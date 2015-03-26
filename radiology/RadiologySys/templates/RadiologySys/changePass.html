@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+
+<html>
+	<body>
+		<h1>Change Password</h1>
+
+		<FORM action="/home/">{% csrf_token %}<INPUT Type="submit" VALUE="Back"></FORM>
+
+		<br />
+
+		{% if messages %}
+			<ul>
+			{% for message in messages %}
+        		<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    		{% endfor %}
+			</ul>
+		{% endif %}
+
+		<form id="changePWD" method="post" action="/changePass/">
+		{% csrf_token %}
+		New Password: <input type="password" name="password1" value="" size"50"/>
+		<br />
+
+		Re-type New Password: <input type="password" name="password2" value="" size="50"/>
+		<br />
+
+		<input type="submit" value="Change Password" />
+		<form/>
+
+
+	</body>
+<html/>

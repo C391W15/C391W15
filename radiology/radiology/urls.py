@@ -13,6 +13,7 @@ urlpatterns = patterns('',
 	url(r'^$', views.user_login, name='login'),
 	#url(r'^RadiologySys/', include('RadiologySys.urls')),
 	url(r'^home/', views.index, name='index'),
+	url(r'^changePass/', views.change_pass, name='Change Password')
 
     
 )
