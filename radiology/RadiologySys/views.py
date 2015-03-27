@@ -73,15 +73,22 @@ def report(request):
 
 	if request.method == 'POST':
 
-		# Get Diagnosis and Time-frame
+		# Get diagnosis and time frame
 		diagnosis = request.POST['diagnosis']
 		tstart = request.POST['time_start']
 		tend = request.POST['time_end']
 
+		mydictionary = {"diagnosis": diagnosis,
+						"tstart": tstart,
+						"tend": tend}
+
+		# Ensures valid time frame
 		if tstart > tend:
 			return HttpResponse("Error: start date after end date")
+		else:
+			print("rendering" + " " + diagnosis + " " + tstart + " " + tend)
+			return render_to_response('RadiologySys/results.html', mydictionary, context)
 
-		print(diagnosis + " " + tstart + " " + tend)
 
 
 	else:
