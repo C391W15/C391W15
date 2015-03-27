@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login
 from django.template import *
@@ -6,35 +5,70 @@ from django.shortcuts import *
 from RadiologySys.models import *
 from django.conf import settings
 from django.shortcuts import redirect
+from django.contrib import messages
 
 # Create your views here.
 def index(request):
-	template = loader.get_template('RadiologySys/index.html')
 	context = RequestContext(request)
+	return render_to_response('RadiologySys/home.html', {}, context)
 
-	if not request.user.is_authenticated():
+def change_info(request):
+	context = RequestContext(request)
+	
+	username = request.session.get('username')
+	person = (Users.objects.get(user_name=username)).person_id
+	#person = Persons.objects.get(person_id = userPerson_id)
+	firstName = person.first_name
+	lastName = person.last_name
+	address = person.address
+	email = person.email
+	phone = person.phone
 
-		return HttpResponse(template.render(context))
+	request.session['first_name'] = firstName
+	request.session['last_name'] = lastName
+	request.session['address'] = address
+	request.session['email'] = email
+	request.session['phone'] = phone
+
+	if request.method == 'POST':
+
+		return render_to_response('RadiologySys/changeInfo.html', {}, context)
 
 	else:
+		return render_to_response('RadiologySys/changeInfo.html', {}, context)
+	
 
-		if request.method == 'POST':
 
-			pass1 = request.POST['password1']
-			pass2 = request.POST['password2']
 
-			if pass1 == pass2:
+def change_pass(request):
+	context = RequestContext(request)
+	username = request.session.get('username')
+	password = request.session.get('password')
 
-				request.user.set_password(pass1)
-				request.user.save()
-				return render_to_response('RadiologySys/home.html', {}, context)
+	if request.method == 'POST':
 
-			else:
+		pass1 = request.POST['password1']
+		pass2 = request.POST['password2']
 
-				return HttpResponse("Passwords Don't Match, Please Try Again")
+		if pass1 == pass2 and pass1 != "" and pass1 != password:
+
+			user = Users.objects.get(user_name = username)
+			user.password = pass1
+			user.save()
+			messages.success(request, 'Password updated')
+			
+			return render_to_response('RadiologySys/changePass.html', {}, context)
+
+		elif pass1 == password:
+			messages.warning(request, "Password is the same, Please Try Again")
+			return render_to_response('RadiologySys/changePass.html', {}, context)
+
 		else:
+			messages.warning(request, "Passwords Don't Match, Please Try Again")
+			return render_to_response('RadiologySys/changePass.html', {}, context)
 
-			return render_to_response('RadiologySys/home.html', {}, context)
+	else:
+		return render_to_response('RadiologySys/changePass.html', {}, context)
 
 # This code was inspired by a tutorial at 'tangowithdjango.com'
 def user_login(request):
@@ -46,20 +80,19 @@ def user_login(request):
 		#get username and password
 		username = request.POST['username']
 		password = request.POST['password']
+		request.session['username'] = username
+		request.session['password'] = password
 
 		#user returned if valid
-		user = authenticate(username=username, password=password)
+		user = myLogin(username, password)
 
 		if user:
-			# if account is active
-			if user.is_active:
-				login(request,user)
-				return HttpResponseRedirect('/home/')
-			else:
-				return HttpResponse("Error: Account not active")
+			return HttpResponseRedirect('/home/')
+
 		else:
 			print("Invalid login credentials: {0}, {1}".format(username, password))
-			return HttpResponse("Invalid Login, Please Try Again")
+			messages.warning(request, "Invalid Login, Please Try Again")
+			return render_to_response('RadiologySys/login.html', {}, context)
 	else:
 		return render_to_response('RadiologySys/login.html', {}, context)
 
@@ -89,15 +122,18 @@ def report(request):
 			print("rendering" + " " + diagnosis + " " + tstart + " " + tend)
 			return render_to_response('RadiologySys/results.html', mydictionary, context)
 
-
-
 	else:
 		return render_to_response('RadiologySys/report.html', {}, context)
 
 
+def myLogin(username, password):
 
+	user = Users.objects.get(user_name=username)
 
-
+	if user.password == password:
+		return user
+	else: 
+		return None
 
 
 

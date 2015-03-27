@@ -12,8 +12,8 @@ class Persons(models.Model):
 	email = models.CharField(max_length=128, unique=True)
 	phone = models.CharField(max_length=10)
 
-	# def __str__(self):
-	# 	return self.persons_text
+	def __str__(self):
+		return self.first_name
 
 class Users(models.Model):
 	CLASSES = (('a','Admin'), ('p', 'Patient'), ('d', 'Doctor'), ('r', 'Radiologist'))
@@ -22,10 +22,9 @@ class Users(models.Model):
 	classType = models.CharField(max_length=1, choices=CLASSES)
 	person_id = models.ForeignKey(Persons)
 	date_registered = models.DateField()
-	user = models.OneToOneField(User)
 
 	def __str__(self):
-		return self.user.username
+		return self.user_name
 
 class Family_doctor(models.Model):
 	doctor_id = models.ForeignKey(Persons, related_name = 'person_idDoc')
