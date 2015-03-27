@@ -6,17 +6,16 @@
 	<body>
 		
 		<form action="/changePass/" method="GET">
-		{% csrf_token %}
-
-		<input type="submit" value="Change Password" />
-		<form/>
+			<input type="submit" value="Change Password" />
+		</form>
 
 		<form action="/changeInfo/" method="GET">
-		{% csrf_token %}
+			<input type="submit" value="Change Info" />
+		</form>
 
-		<input type="submit" value="Change Info" />
-		<form/>
-
+		<form action="/report/" method="GET">
+			<input type="submit" value="Get Report" />
+		</form>
 
 	</body>
 <html/>
