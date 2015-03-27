@@ -10,10 +10,11 @@ urlpatterns = patterns('',
 
     url(r'^admin/', include(admin.site.urls)),
 	url(r'^$', views.user_login, name='login'),
+	url(r'^login', views.user_login, name='login'),
 	url(r'^home/', views.index, name='index'),
 	url(r'^changePass/', views.change_pass, name='Change Password'),
 	url(r'^changeInfo/', views.change_info, name='Change Info'),
-	
-
-    
+	url(r'^userManagment/', views.user_managment, name='User Managment'),
+	url(r'^newUser/', views.new_user, name='New User'),
+	url(r'^updateUser/', views.update_user, name='Update User'),
 )

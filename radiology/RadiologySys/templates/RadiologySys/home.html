@@ -4,18 +4,36 @@
 	<head>Welcome</head>
 
 	<body>
-		
+	
+		<FORM action="/">{% csrf_token %}<INPUT Type="submit" VALUE="Logout"></FORM>
+
+		<br />
+
 		<form action="/changePass/" method="GET">
 		{% csrf_token %}
 
 		<input type="submit" value="Change Password" />
-		<form/>
+		</form>
+
+		<br />
 
 		<form action="/changeInfo/" method="GET">
 		{% csrf_token %}
 
 		<input type="submit" value="Change Info" />
-		<form/>
+		</form>
+
+		<br />
+
+		{% if class == 'Admin' %}
+
+			<form action="/userManagment/" method="GET">
+			{% csrf_token %}
+
+			<input type="submit" value="User Managment" />
+			</form>
+
+		{% endif %}
 
 
 	</body>
