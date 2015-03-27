@@ -1,0 +1,56 @@
+<!Doctype html>
+
+<html>
+
+<head>
+	<title>Reporting System</title>
+</head>
+
+<body>
+
+	{% if messages %}
+		<ul>
+		{% for message in messages %}
+			{% if message.tags == "warning" %}
+	    		<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+	    			{{ message }}
+	    		</li>
+	    	{% endif %}
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+	<form id="report_params" method="post" action="">
+		{% csrf_token %}
+
+		Enter a Diagnosis: <input type="text" name="diagnosis" value="{{ diagnosis }}" size="50"/><br/>
+
+		Enter a Start Time: <input type="date" name="time_start" value="{{ time_start }}" size="50"/><br/>
+
+		Enter an End Time: <input type="date" name="time_end" value="{{ time_end }}" size="50"/><br/>
+
+		<input type="submit" value="submit"/>
+	</form>
+
+	{% if messages %}
+		<ul>
+		{% for message in messages %}
+			{% if message.tags == "success" %}
+				<table>
+					<tr>
+						<td> Name </td>
+						<td> Address </td>
+						<td> Phone Number </td>
+						<td> First Test Date </td>
+					</tr>
+					{% for r in results %}
+						{% cycle '<tr>' '' '' '' %}
+							<td>{{ r }}</td>
+						{% cycle '' '' '' '</tr>' %}
+					{% endfor %}
+				</table>
+			{% endif %}
+		{% endfor %}
+	{% endif %}
+
+</html>
