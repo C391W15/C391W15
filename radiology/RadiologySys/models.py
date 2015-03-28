@@ -29,7 +29,7 @@ class Users(models.Model):
 class Family_doctor(models.Model):
 	doctor_id = models.ForeignKey(Persons, related_name = 'person_idDoc')
 	patient_id = models.ForeignKey(Persons, related_name = 'person_idPat')
-
+	
 	# def __str__(self):
 	# 	return self.family_doctor_text
 

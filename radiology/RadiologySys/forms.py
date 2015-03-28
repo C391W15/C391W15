@@ -12,3 +12,9 @@ class PersonForm(forms.ModelForm):
 	class Meta:
 		model = Persons
 		fields = ['first_name', 'last_name', 'person_id', 'address', 'email', 'phone']
+
+class FamilyDoctorForm(forms.ModelForm):
+	class Meta:
+		model = Family_doctor
+		fields = ['doctor_id', 'patient_id']
+			

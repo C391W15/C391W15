@@ -19,6 +19,37 @@ def user_managment(request):
 	request.session['updateUser'] = None
 	return render_to_response('RadiologySys/userManagment.html', {}, context)
 
+def update_family_doctor(request):
+	context = RequestContext(request)
+
+	if request.method == 'POST':
+		form = FamilyDoctorForm(request.POST)
+		
+		if form.is_valid():			
+
+			doctor = form.cleaned_data['doctor_id']
+			patient = form.cleaned_data['patient_id']
+
+			doctor = Users.objects.get(person_id=doctor)
+			patient = Users.objects.get(person_id=patient)
+
+
+			if doctor.classType != 'd' or patient.classType != 'p':
+				messages.warning(request, 'Ensure Persons Chosen are Patient/Doctor')
+				return render_to_response('RadiologySys/updateFamilyDoctorz.html', {}, context)
+
+			form.save()
+			messages.success(request, 'New Doctor/Patient Relationship Added')
+			return render_to_response('RadiologySys/updateFamilyDoctor.html', {'form': form}, context) 
+
+		else:
+			messages.warning(request, 'Invalid Form, Please Try Again')
+
+	else:
+		form = FamilyDoctorForm()
+
+	return render_to_response('RadiologySys/updateFamilyDoctor.html', {'form': form}, context)
+
 def update_user(request):
 	context = RequestContext(request)
 
@@ -56,8 +87,6 @@ def update_user(request):
 				messages.warning(request, 'Invalid Form, Please Try Again')
 				request.session['updateUser'] = None
 				return render_to_response('RadiologySys/updateUser.html', {'user': user, 'form1': form1, 'form2': form2}, context) 
-
-
 
 	else:
 		form1 = UserForm()
