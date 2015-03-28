@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<html>
+	<title>Manage Users</title>
+	<head>Manage Users</head>
+
+	<body>
+
+		<FORM action="/home/">{% csrf_token %}<INPUT Type="submit" VALUE="Back"></FORM>
+		<br />
+		
+		<form action="/newUser/" method="GET">
+		{% csrf_token %}
+
+		<input type="submit" value="New User" />
+		</form>
+
+		<br />
+
+		<form action="/updateUser/" method="GET">
+		{% csrf_token %}
+
+		<input type="submit" value="Update User" />
+		</form>
+
+		<br />
+
+		<form action="/familyDoctorUpdate/" method="GET">
+		{% csrf_token %}
+
+		<input type="submit" value="Update Family Doctor" />
+		</form>
+
+
+	</body>
+<html/>

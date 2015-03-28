@@ -2,6 +2,7 @@
 
 <html>
 	<body>
+		<title>Change Info</title>
 		<h1>Change Info</h1>
 
 		<FORM action="/home/">{% csrf_token %}<INPUT Type="submit" VALUE="Back"></FORM>
@@ -16,8 +17,35 @@
 			</ul>
 		{% endif %}
 
-		
+		<form id="changeFirst" method="post" action="/changeInfo/">
+		{% csrf_token %}
 		{{ firstName }}
+		<br />
+		New First Name: <input type="text" name="first" />
+		<br />
+		<br />
+		{{lastName}}
+		<br />
+		New Last Name: <input type="text" name="last" />
+		<br />
+		<br />
+		{{address}}
+		<br />
+		New  Address: <input type="text" name="address" />
+		<br />
+		<br />
+		{{email}}
+		<br />
+		New  Email: <input type="text" name="email" />
+		<br />
+		<br />
+		{{phone}}
+		<br />
+		New  Phone: <input type="text" name="phone" maxlength="10"/>
+		<br />
+		<br />
+		<input type="submit" value="Update"/>
+		</form>
 
 	</body>
 <html/>

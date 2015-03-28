@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+<html>
+	<title>New User</title>
+	<h1>Create New User</h1>
+
+	<body>
+		<FORM action="/userManagment/">{% csrf_token %}<INPUT Type="submit" VALUE="Back"></FORM>
+		<br />
+		{% if messages %}
+			<ul>
+			{% for message in messages %}
+        		<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    		{% endfor %}
+			</ul>
+		{% endif %}
+
+		<form action="/newUser/" method="post">
+	    {% csrf_token %}
+	    {{ form1.as_p }}
+	    {{ form2.as_p }}
+	    <input type="submit" value="Submit" />
+		</form>
+
+	</body>
+<html/>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<html>
+	<title>Update User</title>
+	<h1>Update User</h1>
+
+	<body>
+		<FORM action="/userManagment/">{% csrf_token %}<INPUT Type="submit" VALUE="Back"></FORM>
+		<br />
+
+		{% if messages %}
+			<ul>
+			{% for message in messages %}
+        		<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    		{% endfor %}
+			</ul>
+		{% endif %}
+
+
+		{% if user %}
+			<form action="/updateUser/" method="post">
+			    {% csrf_token %}
+			    {{ form1.as_p }}
+			    {{ form2.as_p }}
+			    <input type="submit" value="Submit" />
+			</form>
+		{% else %}
+			<FORM action="/updateUser/" method="POST">
+				{% csrf_token %}
+				User to update: <input type="text" name="user">
+				<INPUT Type="submit" VALUE="Find User">
+			</FORM>
+		{% endif %}
+
+	</body>
+<html/>

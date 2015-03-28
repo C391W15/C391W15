@@ -17,7 +17,7 @@ class Persons(models.Model):
 
 class Users(models.Model):
 	CLASSES = (('a','Admin'), ('p', 'Patient'), ('d', 'Doctor'), ('r', 'Radiologist'))
-	user_name = models.CharField(max_length=24, primary_key=True)
+	user_name = models.CharField(max_length=24, primary_key=True, unique=True)
 	password = models.CharField(max_length=24)
 	classType = models.CharField(max_length=1, choices=CLASSES)
 	person_id = models.ForeignKey(Persons)
@@ -29,7 +29,7 @@ class Users(models.Model):
 class Family_doctor(models.Model):
 	doctor_id = models.ForeignKey(Persons, related_name = 'person_idDoc')
 	patient_id = models.ForeignKey(Persons, related_name = 'person_idPat')
-
+	
 	# def __str__(self):
 	# 	return self.family_doctor_text
 
