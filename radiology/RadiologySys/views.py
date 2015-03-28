@@ -136,6 +136,7 @@ def report(request):
 
             prev['results'] = result
             messages.success(request, " ")
+            cursor.close()
             return render_to_response('RadiologySys/report.html', prev, context)
 
     else:
