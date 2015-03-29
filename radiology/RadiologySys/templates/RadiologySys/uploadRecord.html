@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html>
+	<title>Upload Record</title>
+	<h1>Upload Record</h1>
+
+	<body>
+		<FORM action="/home/">{% csrf_token %}<INPUT Type="submit" VALUE="Back"></FORM>
+		<br />
+
+		{% if messages %}
+			<ul>
+			{% for message in messages %}
+        		<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    		{% endfor %}
+			</ul>
+		{% endif %}
+
+		<form action="/uploadRecord/" method="post">
+		    {% csrf_token %}
+		    {{ form.as_p }}
+		    <input type="submit" value="Submit" />
+		</form>
+		
+
+	</body>
+<html/>

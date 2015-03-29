@@ -29,7 +29,7 @@ class Users(models.Model):
 class Family_doctor(models.Model):
 	doctor_id = models.ForeignKey(Persons, related_name = 'person_idDoc')
 	patient_id = models.ForeignKey(Persons, related_name = 'person_idPat')
-	
+
 	# def __str__(self):
 	# 	return self.family_doctor_text
 
@@ -44,8 +44,8 @@ class Radiology_record(models.Model):
 	diagnosis = models.CharField(max_length=128)
 	description = models.CharField(max_length=1024)
 
-	# def __str__(self):
-	# 	return self.radiology_record_text
+	def __str__(self):
+		return str(self.record_id)
 
 class Pacs_images(models.Model):
 	record_id = models.ForeignKey(Radiology_record, related_name = 'record_idPic')

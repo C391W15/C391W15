@@ -14,6 +14,69 @@ def index(request):
 
 	return render_to_response('RadiologySys/home.html', {'class': myClass}, context)
 
+def upload_images(request):
+	context = RequestContext(request)
+
+	if request.method == 'POST':
+		form = ImagesForm(request.POST)
+		
+		if form.is_valid():			
+
+			thumb = form.cleaned_data['thumbnail']
+			reg = form.cleaned_data['regular_size']
+			full = form.cleaned_data['full_size']
+
+			if thumb != None and reg != None and full != None:
+				form.save()
+
+				messages.success(request, 'Images Uploaded')
+				return render_to_response('RadiologySys/uploadImages.html', {'form': form}, context) 
+			else:
+				messages.warning(request, 'Ensure all image sizes are filled in')
+
+		else:
+			messages.warning(request, 'Invalid Form, Please Try Again')
+
+	else:
+		form = ImagesForm()
+
+	return render_to_response('RadiologySys/uploadImages.html', {'form': form}, context)
+
+def upload_record(request):
+	context = RequestContext(request)
+
+	if request.method == 'POST':
+		form = RadiologyForm(request.POST)
+		
+		if form.is_valid():			
+
+			rad = form.save(commit=False)
+
+			doctor = form.cleaned_data['doctor_id']
+			patient = form.cleaned_data['patient_id']
+			radiologist = form.cleaned_data['radiologist_id']
+
+			doctor = doctor.person_id
+			patient = patient.person_id
+			radiologist = radiologist.person_id
+
+			rad.doctor_id = doctor
+			rad.patient_id = patient
+			rad.radiologist_id = radiologist
+
+			rad.save()
+
+			messages.success(request, 'Record Recorded')
+			return render_to_response('RadiologySys/uploadRecord.html', {'form': form}, context) 
+
+		else:
+			messages.warning(request, 'Invalid Form, Please Try Again')
+
+	else:
+		form = RadiologyForm()
+
+	return render_to_response('RadiologySys/uploadRecord.html', {'form': form}, context)
+
 def user_managment(request):
 	context = RequestContext(request)
 	request.session['updateUser'] = None
@@ -30,15 +93,12 @@ def update_family_doctor(request):
 			doctor = form.cleaned_data['doctor_id']
 			patient = form.cleaned_data['patient_id']
 
-			doctor = Users.objects.get(person_id=doctor)
-			patient = Users.objects.get(person_id=patient)
+			doctor = doctor.person_id
+			patient = patient.person_id
 
+			relationship = Family_doctor(doctor_id=doctor, patient_id=patient)
+			relationship.save()
 
-			if doctor.classType != 'd' or patient.classType != 'p':
-				messages.warning(request, 'Ensure Persons Chosen are Patient/Doctor')
-				return render_to_response('RadiologySys/updateFamilyDoctorz.html', {}, context)
-
-			form.save()
 			messages.success(request, 'New Doctor/Patient Relationship Added')
 			return render_to_response('RadiologySys/updateFamilyDoctor.html', {'form': form}, context) 
 
