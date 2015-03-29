@@ -307,9 +307,9 @@ def user_login(request):
 def report(request):
 	context = RequestContext(request)
 
-	# Requires user to be logged in
-	if not request.user.is_authenticated():
-	    return redirect('/login')
+	# # Requires user to be logged in
+	# if not request.user.is_authenticated():
+	#     return redirect('/login')
 
 	if request.method == 'POST':
 
@@ -329,12 +329,13 @@ def report(request):
 	        return render_to_response('RadiologySys/report.html', prev, context)
 	    else:
 	        cursor = connection.cursor()
-	        cursor.execute('''Select    p.first_name, p.address, p.phone, r.test_date
+	        cursor.execute('''Select    p.first_name, p.address, p.phone, min(r.test_date)
 	                            from    RadiologySys_persons p, RadiologySys_radiology_record r 
 	                            where   p.person_id = r.patient_id_id and
 	                                    r.test_type = %s and
 	                                    r.test_date >= %s and
-	                                    r.test_date <= %s''', [diagnosis, tstart, tend])
+	                                    r.test_date <= %s
+                                group by p.first_name, p.address, p.phone''', [diagnosis, tstart, tend])
 	        result = []
 	        # Convert query to presentable format
 	        for row in cursor.fetchall():
@@ -347,7 +348,6 @@ def report(request):
 
 	else:
 	    return render_to_response('RadiologySys/report.html', {}, context)
-
 
 def myLogin(username, password):
 	try:
