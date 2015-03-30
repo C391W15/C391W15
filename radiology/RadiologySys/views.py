@@ -123,15 +123,27 @@ def update_user(request):
 	if request.method == 'POST':
 		try:
 			user = request.POST['user']
+			try:
+				userInst = Users.objects.get(user_name=user)
+			except:
+				messages.warning(request, 'User doesn\'t exist')
+				request.session['updateUser'] = None
+				return render_to_response('RadiologySys/updateUser.html', {}, context)
+
 			request.session['updateUser'] = user
-			userInst = Users.objects.get(user_name=user)
 			person = userInst.person_id
 			form1 = UserForm(instance=userInst)
 			form2 = PersonForm(instance=person)
 			return render_to_response('RadiologySys/updateUser.html', {'user': user, 'form1': form1, 'form2': form2}, context)
 
 		except:
-			userInst = Users.objects.get(user_name=user)
+			try:
+				userInst = Users.objects.get(user_name=user)
+			except:
+				messages.warning(request, 'User doesn\'t exist')
+				request.session['updateUser'] = None
+				return render_to_response('RadiologySys/updateUser.html', {}, context)
+
 			person = userInst.person_id
 			form1 = UserForm(request.POST, instance=userInst)
 			form2 = PersonForm(request.POST, instance=person)
@@ -332,7 +344,7 @@ def report(request):
 	        cursor.execute('''Select    p.first_name, p.address, p.phone, min(r.test_date)
 	                            from    RadiologySys_persons p, RadiologySys_radiology_record r 
 	                            where   p.person_id = r.patient_id_id and
-	                                    r.test_type = %s and
+	                                    r.diagnosis = %s and
 	                                    r.test_date >= %s and
 	                                    r.test_date <= %s
                                 group by p.first_name, p.address, p.phone''', [diagnosis, tstart, tend])
