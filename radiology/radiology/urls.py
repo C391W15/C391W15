@@ -17,5 +17,7 @@ urlpatterns = patterns('',
 	url(r'^newUser/', views.new_user, name='New User'),
 	url(r'^updateUser/', views.update_user, name='Update User'),
 	url(r'^report/', views.report, name='report'),
-	url(r'^familyDoctorUpdate', views.update_family_doctor, name='Update Family Doctor')
+	url(r'^familyDoctorUpdate/', views.update_family_doctor, name='Update Family Doctor'),
+	url(r'^uploadRecord/', views.upload_record, name='Upload Radiology Record'),
+	url(r'^uploadImages/', views.upload_images, name='Upload Images')
 )

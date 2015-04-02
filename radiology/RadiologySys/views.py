@@ -14,6 +14,69 @@ def index(request):
 
 	return render_to_response('RadiologySys/home.html', {'class': myClass}, context)
 
+def upload_images(request):
+	context = RequestContext(request)
+
+	if request.method == 'POST':
+		form = ImagesForm(request.POST)
+		
+		if form.is_valid():			
+
+			thumb = form.cleaned_data['thumbnail']
+			reg = form.cleaned_data['regular_size']
+			full = form.cleaned_data['full_size']
+
+			if thumb != None and reg != None and full != None:
+				form.save()
+
+				messages.success(request, 'Images Uploaded')
+				return render_to_response('RadiologySys/uploadImages.html', {'form': form}, context) 
+			else:
+				messages.warning(request, 'Ensure all image sizes are filled in')
+
+		else:
+			messages.warning(request, 'Invalid Form, Please Try Again')
+
+	else:
+		form = ImagesForm()
+
+	return render_to_response('RadiologySys/uploadImages.html', {'form': form}, context)
+
+def upload_record(request):
+	context = RequestContext(request)
+
+	if request.method == 'POST':
+		form = RadiologyForm(request.POST)
+		
+		if form.is_valid():			
+
+			rad = form.save(commit=False)
+
+			doctor = form.cleaned_data['doctor_id']
+			patient = form.cleaned_data['patient_id']
+			radiologist = form.cleaned_data['radiologist_id']
+
+			doctor = doctor.person_id
+			patient = patient.person_id
+			radiologist = radiologist.person_id
+
+			rad.doctor_id = doctor
+			rad.patient_id = patient
+			rad.radiologist_id = radiologist
+
+			rad.save()
+
+			messages.success(request, 'Record Recorded')
+			return render_to_response('RadiologySys/uploadRecord.html', {'form': form}, context) 
+
+		else:
+			messages.warning(request, 'Invalid Form, Please Try Again')
+
+	else:
+		form = RadiologyForm()
+
+	return render_to_response('RadiologySys/uploadRecord.html', {'form': form}, context)
+
 def user_managment(request):
 	context = RequestContext(request)
 	request.session['updateUser'] = None
@@ -30,15 +93,12 @@ def update_family_doctor(request):
 			doctor = form.cleaned_data['doctor_id']
 			patient = form.cleaned_data['patient_id']
 
-			doctor = Users.objects.get(person_id=doctor)
-			patient = Users.objects.get(person_id=patient)
+			doctor = doctor.person_id
+			patient = patient.person_id
 
+			relationship = Family_doctor(doctor_id=doctor, patient_id=patient)
+			relationship.save()
 
-			if doctor.classType != 'd' or patient.classType != 'p':
-				messages.warning(request, 'Ensure Persons Chosen are Patient/Doctor')
-				return render_to_response('RadiologySys/updateFamilyDoctorz.html', {}, context)
-
-			form.save()
 			messages.success(request, 'New Doctor/Patient Relationship Added')
 			return render_to_response('RadiologySys/updateFamilyDoctor.html', {'form': form}, context) 
 
@@ -63,15 +123,27 @@ def update_user(request):
 	if request.method == 'POST':
 		try:
 			user = request.POST['user']
+			try:
+				userInst = Users.objects.get(user_name=user)
+			except:
+				messages.warning(request, 'User doesn\'t exist')
+				request.session['updateUser'] = None
+				return render_to_response('RadiologySys/updateUser.html', {}, context)
+
 			request.session['updateUser'] = user
-			userInst = Users.objects.get(user_name=user)
 			person = userInst.person_id
 			form1 = UserForm(instance=userInst)
 			form2 = PersonForm(instance=person)
 			return render_to_response('RadiologySys/updateUser.html', {'user': user, 'form1': form1, 'form2': form2}, context)
 
 		except:
-			userInst = Users.objects.get(user_name=user)
+			try:
+				userInst = Users.objects.get(user_name=user)
+			except:
+				messages.warning(request, 'User doesn\'t exist')
+				request.session['updateUser'] = None
+				return render_to_response('RadiologySys/updateUser.html', {}, context)
+
 			person = userInst.person_id
 			form1 = UserForm(request.POST, instance=userInst)
 			form2 = PersonForm(request.POST, instance=person)
@@ -272,7 +344,7 @@ def report(request):
 	        cursor.execute('''Select    p.first_name, p.address, p.phone, min(r.test_date)
 	                            from    RadiologySys_persons p, RadiologySys_radiology_record r 
 	                            where   p.person_id = r.patient_id_id and
-	                                    r.test_type = %s and
+	                                    r.diagnosis = %s and
 	                                    r.test_date >= %s and
 	                                    r.test_date <= %s
                                 group by p.first_name, p.address, p.phone''', [diagnosis, tstart, tend])

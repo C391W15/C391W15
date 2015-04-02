@@ -41,5 +41,23 @@
 
 		{% endif %}
 
+		{% if class == 'Radiologist' %}
+
+			<form action="/uploadRecord/" method="GET">
+			{% csrf_token %}
+
+			<input type="submit" value="Upload Record" />
+			</form>
+
+			<br />
+
+			<form action="/uploadImages/" method="GET">
+			{% csrf_token %}
+
+			<input type="submit" value="Upload Images" />
+			</form>
+
+		{% endif %}
+
 	</body>
 <html/>
