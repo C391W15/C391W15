@@ -6,14 +6,16 @@ from RadiologySys.forms import *
 from datetime import date
 from django.db import connection
 
-# Create your views here.
+#homepage view
 def index(request):
 	context = RequestContext(request)
 
+	#store class in order to show proper modules
 	myClass = request.session.get('class')
 
 	return render_to_response('RadiologySys/home.html', {'class': myClass}, context)
 
+#upload images and attach them to a radiology record
 def upload_images(request):
 	context = RequestContext(request)
 
@@ -22,19 +24,23 @@ def upload_images(request):
 		
 		if form.is_valid():			
 
+			# get the three image sizes
 			thumb = form.cleaned_data['thumbnail']
 			reg = form.cleaned_data['regular_size']
 			full = form.cleaned_data['full_size']
 
+			# ensure none of the image sizes are missing
 			if thumb != None and reg != None and full != None:
 				form.save()
-
+				# success
 				messages.success(request, 'Images Uploaded')
 				return render_to_response('RadiologySys/uploadImages.html', {'form': form}, context) 
 			else:
+				# missing an image 
 				messages.warning(request, 'Ensure all image sizes are filled in')
 
 		else:
+			# something is wrong with input
 			messages.warning(request, 'Invalid Form, Please Try Again')
 
 	else:
@@ -42,6 +48,7 @@ def upload_images(request):
 
 	return render_to_response('RadiologySys/uploadImages.html', {'form': form}, context)
 
+# uplaod a radiology record
 def upload_record(request):
 	context = RequestContext(request)
 
@@ -50,6 +57,9 @@ def upload_record(request):
 		
 		if form.is_valid():			
 
+			# the following code is a slight workaround in order to make sure the only options given 
+			# are the proper ones (ie. you can only select doctors from the doctors dropdown),
+			# so we need to get persons from users
 			rad = form.save(commit=False)
 
 			doctor = form.cleaned_data['doctor_id']
@@ -77,11 +87,13 @@ def upload_record(request):
 
 	return render_to_response('RadiologySys/uploadRecord.html', {'form': form}, context)
 
+# user managment menu
 def user_managment(request):
 	context = RequestContext(request)
 	request.session['updateUser'] = None
 	return render_to_response('RadiologySys/userManagment.html', {}, context)
 
+# update family doctor table
 def update_family_doctor(request):
 	context = RequestContext(request)
 
@@ -90,6 +102,8 @@ def update_family_doctor(request):
 		
 		if form.is_valid():			
 
+			# this is the same workaround as the radiology record, where we need to ensure
+			# the dropdowns only give certain options
 			doctor = form.cleaned_data['doctor_id']
 			patient = form.cleaned_data['patient_id']
 
@@ -110,9 +124,12 @@ def update_family_doctor(request):
 
 	return render_to_response('RadiologySys/updateFamilyDoctor.html', {'form': form}, context)
 
+# this updates a user that already exists
 def update_user(request):
 	context = RequestContext(request)
 
+	# this try block is making it so that when you search for someone and the page reloads it will give the results
+	# and if the search was incorrect, it reshows the search with the error message
 	try:
 		user = request.session.get('updateUser')
 		if user == "":
@@ -122,14 +139,18 @@ def update_user(request):
 
 	if request.method == 'POST':
 		try:
+			# see if they were searching or entering a form
 			user = request.POST['user']
 			try:
+				# if the user was searching try and get the username
 				userInst = Users.objects.get(user_name=user)
 			except:
+				# otherwise they were looking for a user that doesn't exist
 				messages.warning(request, 'User doesn\'t exist')
 				request.session['updateUser'] = None
 				return render_to_response('RadiologySys/updateUser.html', {}, context)
 
+			# show the form with that users info already showing
 			request.session['updateUser'] = user
 			person = userInst.person_id
 			form1 = UserForm(instance=userInst)
@@ -137,18 +158,20 @@ def update_user(request):
 			return render_to_response('RadiologySys/updateUser.html', {'user': user, 'form1': form1, 'form2': form2}, context)
 
 		except:
+			# try to get the user
 			try:
 				userInst = Users.objects.get(user_name=user)
 			except:
 				messages.warning(request, 'User doesn\'t exist')
 				request.session['updateUser'] = None
 				return render_to_response('RadiologySys/updateUser.html', {}, context)
-
+			# valid person, display their info
 			person = userInst.person_id
 			form1 = UserForm(request.POST, instance=userInst)
 			form2 = PersonForm(request.POST, instance=person)
 
 			if form1.is_valid() and form2.is_valid():
+				# update was valid
 				form1.save()
 				form2.save()
 				messages.success(request, 'User Updated')
@@ -166,6 +189,7 @@ def update_user(request):
 		request.session['updateUser'] = None
 		return render_to_response('RadiologySys/updateUser.html', {'user': user, 'form1': form1, 'form2': form2}, context)
 
+# create a new user
 def new_user(request):
 	context = RequestContext(request)
 
@@ -177,6 +201,7 @@ def new_user(request):
 
 			form2.save()
 
+			# set the date registered to current date
 			person_id = form2.cleaned_data['person_id']
 			person = Persons.objects.get(person_id=person_id)
 			usr = form1.save(commit=False)
@@ -199,18 +224,18 @@ def new_user(request):
 
 	return render_to_response('RadiologySys/newUser.html', {'form1': form1, 'form2': form2}, context)
 
+# change users info
 def change_info(request):
 	context = RequestContext(request)
-
+	# get the users current info
 	username = request.session.get('username')
 	person = (Users.objects.get(user_name=username)).person_id
-	# person = Persons.objects.get(person_id = userPerson_id)
 	firstName = person.first_name
 	lastName = person.last_name
 	address = person.address
 	email = person.email
 	phone = person.phone
-
+	# set the info
 	request.session['first_name'] = firstName
 	request.session['last_name'] = lastName
 	request.session['address'] = address
@@ -224,6 +249,7 @@ def change_info(request):
 		newEmail = request.POST['email']
 		newPhone = request.POST['phone']
 
+		# if a field isn't blank, update that field in the database 
 		if newFirst != "":
 			person.first_name = newFirst
 			firstName = person.first_name
@@ -252,19 +278,23 @@ def change_info(request):
 
 	else:
 		return render_to_response('RadiologySys/changeInfo.html', {'firstName': firstName, 'lastName': lastName, 'address': address, 'email': email, 'phone': phone}, context)
-	
+
+# change the users password	
 def change_pass(request):
     context = RequestContext(request)
+    # get username and password
     username = request.session.get('username')
     password = request.session.get('password')
 
     if request.method == 'POST':
-
+    	# get the input
         pass1 = request.POST['password1']
         pass2 = request.POST['password2']
 
+        # if the passwords match and aren't blank and new password isn't the users current password
         if pass1 == pass2 and pass1 != "" and pass1 != password:
 
+        	#update the password in the database
             user = Users.objects.get(user_name=username)
             user.password = pass1
             user.save()
@@ -272,11 +302,11 @@ def change_pass(request):
             messages.success(request, 'Password updated')
 
             return render_to_response('RadiologySys/changePass.html', {}, context)
-
+        # if the password entered is the current password
         elif pass1 == password:
             messages.warning(request, "Password is the same, Please Try Again")
             return render_to_response('RadiologySys/changePass.html', {}, context)
-
+        # error, passwords don't match
         else:
             messages.warning(request, "Passwords Don't Match, Please Try Again")
             return render_to_response('RadiologySys/changePass.html', {}, context)
