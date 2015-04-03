@@ -319,10 +319,6 @@ def user_login(request):
 def report(request):
 	context = RequestContext(request)
 
-	# # Requires user to be logged in
-	# if not request.user.is_authenticated():
-	#     return redirect('/login')
-
 	if request.method == 'POST':
 
 	    # Get diagnosis and time frame
@@ -360,6 +356,15 @@ def report(request):
 
 	else:
 	    return render_to_response('RadiologySys/report.html', {}, context)
+
+def analysis(request):
+	context = RequestContext(request)
+
+	if request.method == 'POST':
+
+		return render_to_response('RadiologySys/analysis.html', {}, context)
+	else:
+		return render_to_response('RadiologySys/analysis.html', {}, context)
 
 def myLogin(username, password):
 	try:
