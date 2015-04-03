@@ -42,6 +42,9 @@ class Time(models.Model):
 	month = models.IntegerField(choices=months)
 	year = models.IntegerField()
 
+	def __str__(self):
+		return self.time_id
+
 class Radiology_record(models.Model):
 	record_id = models.AutoField(primary_key = True)
 	patient_id = models.ForeignKey(Persons, related_name = 'person_idPatRec')
@@ -59,7 +62,7 @@ class Radiology_record(models.Model):
 		yr = dt.year
 		mth = dt.month
 		wk = dt.isocalendar()[1]
-
+		
 		self.time_id = Time.objects.get(week = wk, month = mth, year = yr)
 		super(Radiology_record, self).save()
 
