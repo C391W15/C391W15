@@ -4,34 +4,109 @@
 
 	<head>
 		<title> Data Analysis </title>
+		<style>
+			table {
+				border-spacing: 10px;
+			}
+		</style>
 	</head>
 
 	<body>
 
+		<h1> Data Analysis Module </h1>
+<!-- Section to display warning messages if any -->
 		{% if messages %}
 			<ul>
 			{% for message in messages %}
 				{% if message.tags == 'warning' %}
-					<li>
-						{{ message }}
-					</li>
+					<li> {{ message }} </li>
 				{% endif %}
 			{% endfor %}
 			</ul>
 		{% endif %}
-
+<!-- Form used to make selections -->
 		<form id = "analysis params" method = "post" action = "">
 			{% csrf_token %}
 
-			<input type = "checkbox" name = "name" value = "" {% if name %} checked {% endif %}> Patient Name <br/>
+			<input type = "checkbox" name = "name" value = "True" {% if name %} checked {% endif %}> Patient Name <br/>
 
-			<input type = "checkbox" name = "type" value = "" {% if type %} checked {% endif %}> Test Type <br/>
+			<input type = "checkbox" name = "type" value = "True" {% if type %} checked {% endif %}> Test Type <br/>
 
-			<input type = "checkbox" name = "time" value = "" {% if time %} checked {% endif %}> Time Frame <br/>
+			Time Frame: <br/>
+
+			<input type = "radio" name = "time" value = "all" {% if time == 'all' %} checked {% endif %}> All <br/>
+
+			<input type = "radio" name = "time" value = "year" {% if time == 'year' %} checked {% endif %}> Yearly <br/>
+
+			<input type = "radio" name = "time" value = "month" {% if time == 'month' %} checked {% endif %}> Monthly <br/>
+
+			<input type = "radio" name = "time" value = "week" {% if time == 'week' %} checked {% endif %}> Weekly <br/>
 
 			<input type = "submit" value = "submit"/>
 		</form>
 
+<!-- Section used to dynamically generate table -->
+		{% if messages %}
+			{% for message in messages %}
+				{% if message.tags == 'success' %}
+					<h2> {{ message}} </h2>  <!-- Display success message -->
+					<table>
+					<!-- Define Headers -->
+						<tr>
+							{% if type %} <th> Test Type </th> {% endif %}
+							{% if name %} <th> Person ID </th> {% endif %}
+							{% if time != "all" %}
+								{% if time == "year" %}
+									<th> Period of Time </th>
+								{% elif time != "year" %}
+									<th colspan = "2"> Period of Time </th>
+								{% endif %}
+							{% endif %}
+							{% if name or type or time != "all" %} <th> Number of Images </th> {% endif %}
+							{% if not name and not type and time == "all" %} <th> Total </th> {% endif %}
+						</tr>
+
+						<!-- Handle Dynamic table sizes -->
+						{% if length == 1 %}
+							{% for r in results %}
+								<td>{{ r }}</td>
+							{% endfor %}
+						{% elif length == 2 %}
+							{% for r in results %}
+								{% cycle '<tr>' '' %}
+									<td>{{ r }}</td>
+								{% cycle '' '</tr>' %}
+							{% endfor %}
+						{% elif length == 3 %}
+							{% for r in results %}
+								{% cycle '<tr>' '' '' %}
+									<td>{{ r }}</td>
+								{% cycle '' '' '</tr>' %}
+							{% endfor %}
+						{% elif length == 4 %}
+							{% for r in results %}
+								{% cycle '<tr>' '' '' '' %}
+									<td>{{ r }}</td>
+								{% cycle '' '' '' '</tr>' %}
+							{% endfor %}
+						{% elif length == 5 %}
+							{% for r in results %}
+								{% cycle '<tr>' '' '' '' '' %}
+									<td>{{ r }}</td>
+								{% cycle '' '' '' '' '</tr>' %}
+							{% endfor %}
+						{% endif %}
+
+					</table>
+				{% endif %}
+			{% endfor %}
+		{% endif %}
+
+<!-- Back button -->
+		<FORM action="/home/">
+			{% csrf_token %}
+			<INPUT Type="submit" VALUE="Back">
+		</FORM><br/>
 	</body>
 
 </html>
