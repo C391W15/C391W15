@@ -72,9 +72,9 @@ class Radiology_record(models.Model):
 class Pacs_images(models.Model):
 	record_id = models.ForeignKey(Radiology_record, related_name = 'record_idPic')
 	image_id = models.AutoField(primary_key = True)
-	thumbnail = models.ImageField(upload_to = 'thumbnails', blank=True)
-	regular_size = models.ImageField(upload_to = 'regular_size', blank=True)
-	full_size = models.ImageField(upload_to = 'full_size', blank=True)
+	thumbnail = models.ImageField(upload_to = 'thumbnails/', blank=True)
+	regular_size = models.ImageField(upload_to = 'regular_size/', blank=True)
+	full_size = models.ImageField(upload_to = 'full_size/', blank=True)
 
 	# def __str__(self):
 	# 	return self.pacs_images_text

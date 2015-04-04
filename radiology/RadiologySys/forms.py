@@ -37,4 +37,4 @@ class RadiologyForm(forms.ModelForm):
 class ImagesForm(forms.ModelForm):
 	class Meta:
 		model = Pacs_images
-		fields = '__all__'
+		fields = ['thumbnail', 'regular_size', 'full_size', 'record_id']
