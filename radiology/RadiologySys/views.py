@@ -29,11 +29,11 @@ def upload_images(request):
 		form = ImagesForm(request.POST, request.FILES)
 		
 		if form.is_valid():			
-
+			# get all three images
 			thumb = form.cleaned_data['thumbnail']
 			reg = form.cleaned_data['regular_size']
 			full = form.cleaned_data['full_size']
-			print(thumb, reg, full)
+			#print(thumb, reg, full)
 			# ensure no image is missing
 			if thumb != None and reg != None and full != None:
 				# success
@@ -89,9 +89,11 @@ def upload_record(request):
 			return render_to_response('RadiologySys/uploadRecord.html', {'form': form}, context) 
 
 		else:
+			#invalid form
 			messages.warning(request, 'Invalid Form, Please Try Again')
 
 	else:
+		# not a post, show form
 		form = RadiologyForm()
 
 	return render_to_response('RadiologySys/uploadRecord.html', {'form': form}, context)
