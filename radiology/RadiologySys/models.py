@@ -62,7 +62,7 @@ class Radiology_record(models.Model):
 		yr = dt.year
 		mth = dt.month
 		wk = dt.isocalendar()[1]
-		
+
 		self.time_id = Time.objects.get(week = wk, month = mth, year = yr)
 		super(Radiology_record, self).save()
 
@@ -76,6 +76,6 @@ class Pacs_images(models.Model):
 	regular_size = models.ImageField(upload_to = 'regular_size', blank=True)
 	full_size = models.ImageField(upload_to = 'full_size', blank=True)
 
-	# def __str__(self):
-	# 	return self.pacs_images_text
+	def __str__(self):
+		return str(self.image_id)
 

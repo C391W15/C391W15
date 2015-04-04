@@ -5,6 +5,7 @@ from django.contrib import messages
 from RadiologySys.forms import *
 from datetime import date
 from django.db import connection
+import calendar
 
 #homepage view
 def index(request):
@@ -424,22 +425,30 @@ def analysis(request):
 		selectString = "Select count(image_id)"
 		queryString = " From temp"
 		groupString = " Group by "
+		length = 1
 
+		flag = (False, "")
 		if time != "all": # Time was selected
 			sortString = time # Time is either week/month/year
 			selectString += ", year"
 			groupString += "year"
+			length += 1
 			if time == "week":
 				selectString += ", week"
 				groupString += ", week"
+				length += 1
+				flag = (True, "week")
 			elif time == "month":
 				selectString += ", month"
 				groupString += ", month"
+				length += 1
+				flag = (True, "month")
 
 			if name == "True" and tp == "True": # All 3 were selected
 				sortString += ", patient and type "
 				selectString += ", person_id, test_type"
 				groupString += ", person_id, test_type"
+				length += 2
 			elif name == "True" or tp == "True": # One other selection was made (Type or patient)
 				sortString += " and "
 				groupString += ", "
@@ -448,14 +457,17 @@ def analysis(request):
 			sortString += "type"
 			selectString += ", test_type"
 			groupString += "test_type"
+			length += 1
 		elif name == "True" and tp == None: # Patient was selected
 			sortString += "patient"
 			selectString += ", person_id"
 			groupString += "person_id"
+			length += 1
 		elif name == "True" and tp == "True" and time == "all": # Only Patient and Type selected
 			sortString += "patient and type"
 			selectString += ", person_id, test_type"
 			groupString += "person_id, test_type"
+			length += 2
 
 		print(sortString)
 		if name == None and tp == None and time == "all":
@@ -463,7 +475,10 @@ def analysis(request):
 		else:
 			messages.success(request, "Displaying Total number of images, sorted by " + sortString)
 
-		queryString = selectString + queryString + groupString
+		if groupString == " Group by ":
+			queryString = selectString + queryString
+		else:
+			queryString = selectString + queryString + groupString
 		print(queryString)
 
 		cursor = connection.cursor()
@@ -481,13 +496,32 @@ def analysis(request):
 
 		result = []
 
+		print(flag)
 		for row in cursor.fetchall():
+			print(row)
 			for i in range(len(row)):
-				result.append(row[i])
+				if flag[0]:
+					if i == 2:
+						if flag[1] == "week":
+							temp = "week " + str(row[i])
+							result.insert(0, temp)
+						else:
+							result.insert(0, calendar.month_name[row[i]])
+					else:
+						result.insert(0, row[i])
+				else:
+					result.insert(0, row[i])
 
 		print(result)
 
-		return render_to_response('RadiologySys/analysis.html', prev, context)
+		if len(result) == 0:
+			messages.warning(request, "No images in the database")
+			return render_to_response('RadiologySys/analysis.html', prev, context)
+		else:
+			prev['results'] = result
+			prev['length'] = length
+			return render_to_response('RadiologySys/analysis.html', prev, context)
+
 	else:
 		return render_to_response('RadiologySys/analysis.html', {'time': 'all'}, context)
 

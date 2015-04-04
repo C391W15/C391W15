@@ -4,6 +4,11 @@
 
 	<head>
 		<title> Data Analysis </title>
+		<style>
+		table {
+			border-spacing: 10px;
+		}
+		</style>
 	</head>
 
 	<body>
@@ -44,6 +49,54 @@
 			{% for message in messages %}
 				{% if message.tags == 'success' %}
 					<h2> {{ message}} </h2>
+					<table>
+					<!-- Define Headers -->
+						<tr>
+							{% if type %} <th> Test Type </th> {% endif %}
+							{% if name %} <th> Person ID </th> {% endif %}
+							{% if time != "all" %}
+								{% if time == "year" %}
+									<th> Period of Time </th>
+								{% elif time != "year" %}
+									<th colspan = "2"> Period of Time </th>
+								{% endif %}
+							{% endif %}
+							{% if name or type or time != "all" %} <th> Number of Images </th> {% endif %}
+							{% if not name and not type and time == "all" %} <th> Total </th> {% endif %}
+						</tr>
+
+						<!-- Handle Dynamic table sizes -->
+						{% if length == 1 %}
+							{% for r in results %}
+								<td>{{ r }}</td>
+							{% endfor %}
+						{% elif length == 2 %}
+							{% for r in results %}
+								{% cycle '<tr>' '' %}
+									<td>{{ r }}</td>
+								{% cycle '' '</tr>' %}
+							{% endfor %}
+						{% elif length == 3 %}
+							{% for r in results %}
+								{% cycle '<tr>' '' '' %}
+									<td>{{ r }}</td>
+								{% cycle '' '' '</tr>' %}
+							{% endfor %}
+						{% elif length == 4 %}
+							{% for r in results %}
+								{% cycle '<tr>' '' '' '' %}
+									<td>{{ r }}</td>
+								{% cycle '' '' '' '</tr>' %}
+							{% endfor %}
+						{% elif length == 5 %}
+							{% for r in results %}
+								{% cycle '<tr>' '' '' '' '' %}
+									<td>{{ r }}</td>
+								{% cycle '' '' '' '' '</tr>' %}
+							{% endfor %}
+						{% endif %}
+
+					</table>
 				{% endif %}
 			{% endfor %}
 		{% endif %}

@@ -4,6 +4,11 @@
 
 	<head>
 		<title>Reporting System</title>
+		<style>
+			table {
+				border-spacing: 10px;
+			}
+		</style>
 	</head>
 
 	<body>
@@ -39,10 +44,10 @@
 				{% if message.tags == "success" %}
 					<table>
 						<tr>
-							<td> Name </td>
-							<td> Address </td>
-							<td> Phone Number </td>
-							<td> First Test Date </td>
+							<th> Name </th>
+							<th> Address </th>
+							<th> Phone Number </th>
+							<th> First Test Date </th>
 						</tr>
 						{% for r in results %}
 							{% cycle '<tr>' '' '' '' %}
