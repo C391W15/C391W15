@@ -365,12 +365,15 @@ def report(request):
 	    if tstart > tend:
 	        messages.warning(request, "Error: Start date after end date")
 	        return render_to_response('RadiologySys/report.html', prev, context)
+	    elif tstart == "" or tend == "" or diagnosis == "":
+	    	messages.warning(request, "Error: Ensure all fields are filled in")
+	    	return render_to_response('RadiologySys/report.html', prev, context)
 	    else:
 	        cursor = connection.cursor()
 	        cursor.execute('''Select    p.first_name, p.address, p.phone, min(r.test_date)
 	                            from    RadiologySys_persons p, RadiologySys_radiology_record r 
 	                            where   p.person_id = r.patient_id_id and
-	                                    r.diagnosis = %s and
+	                                    r.test_type = %s and
 	                                    r.test_date >= %s and
 	                                    r.test_date <= %s
                                 group by p.first_name, p.address, p.phone''', [diagnosis, tstart, tend])
@@ -380,9 +383,13 @@ def report(request):
 	            for i in range(len(row)):
 	                result.append(row[i])
 
-	        prev['results'] = result
-	        messages.success(request, " ")
-	        return render_to_response('RadiologySys/report.html', prev, context)
+	        if len(result) == 0:
+	        	messages.warning(request, "No results returned. Please try again")
+	        	return render_to_response('RadiologySys/report.html', prev, context)
+	        else:
+	        	prev['results'] = result
+	        	messages.success(request, " ")
+	        	return render_to_response('RadiologySys/report.html', prev, context)
 
 	else:
 	    return render_to_response('RadiologySys/report.html', {}, context)
@@ -391,10 +398,93 @@ def analysis(request):
 	context = RequestContext(request)
 
 	if request.method == 'POST':
+		try:
+			time = request.POST['time']
+		except:
+			time = 'all'
+		try:
+			name = request.POST['name']
+		except:
+			name = None
+		try:
+			tp = request.POST['type']
+		except:
+			tp = None
 
-		return render_to_response('RadiologySys/analysis.html', {}, context)
+		prev = {'time': time,
+				'name': name,
+				'type': tp}
+
+		sortString = "" # No selection (default)
+		selectString = "Select count(image_id)"
+		queryString = " From temp"
+		groupString = " Group by "
+
+		if time != "all": # Time was selected
+			sortString = time # Time is either week/month/year
+			selectString += ", year"
+			groupString += "year"
+			if time == "week":
+				selectString += ", week"
+				groupString += ", week"
+			elif time == "month":
+				selectString += ", month"
+				groupString += ", month"
+
+			if name == "True" and tp == "True": # All 3 were selected
+				sortString += ", patient and type "
+				selectString += ", person_id, test_type"
+				groupString += ", person_id, test_type"
+			elif name == "True" or tp == "True": # One other selection was made (Type or patient)
+				sortString += " and "
+				groupString += ", "
+
+		if name == None and tp == "True": # Type was selected
+			sortString += "type"
+			selectString += ", test_type"
+			groupString += "test_type"
+		elif name == "True" and tp == None: # Patient was selected
+			sortString += "patient"
+			selectString += ", person_id"
+			groupString += "person_id"
+		elif name == "True" and tp == "True" and time == "all": # Only Patient and Type selected
+			sortString += "patient and type"
+			selectString += ", person_id, test_type"
+			groupString += "person_id, test_type"
+
+		print(sortString)
+		if name == None and tp == None and time == "all":
+			messages.success(request, "Displaying Total number of images ever taken")
+		else:
+			messages.success(request, "Displaying Total number of images, sorted by " + sortString)
+
+		queryString = selectString + queryString + groupString
+		print(queryString)
+
+		cursor = connection.cursor()
+
+		cursor.execute('''Create temporary table if not exists temp as (
+							Select person_id, week, month, year, test_type, image_id 
+							From RadiologySys_persons p
+								Inner Join RadiologySys_radiology_record r
+									on r.patient_id_id = p.person_id
+								Inner Join RadiologySys_time t
+									on t.time_id = r.time_id_id
+								Inner Join RadiologySys_Pacs_images i
+									on i.record_id_id = r.record_id)''')
+		cursor.execute(queryString)
+
+		result = []
+
+		for row in cursor.fetchall():
+			for i in range(len(row)):
+				result.append(row[i])
+
+		print(result)
+
+		return render_to_response('RadiologySys/analysis.html', prev, context)
 	else:
-		return render_to_response('RadiologySys/analysis.html', {}, context)
+		return render_to_response('RadiologySys/analysis.html', {'time': 'all'}, context)
 
 def myLogin(username, password):
 	try:

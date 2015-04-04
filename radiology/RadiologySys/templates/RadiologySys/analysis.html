@@ -8,13 +8,13 @@
 
 	<body>
 
+		<h1> Data Analysis Module </h1>
+
 		{% if messages %}
 			<ul>
 			{% for message in messages %}
 				{% if message.tags == 'warning' %}
-					<li>
-						{{ message }}
-					</li>
+					<li> {{ message }} </li>
 				{% endif %}
 			{% endfor %}
 			</ul>
@@ -23,15 +23,35 @@
 		<form id = "analysis params" method = "post" action = "">
 			{% csrf_token %}
 
-			<input type = "checkbox" name = "name" value = "" {% if name %} checked {% endif %}> Patient Name <br/>
+			<input type = "checkbox" name = "name" value = "True" {% if name %} checked {% endif %}> Patient Name <br/>
 
-			<input type = "checkbox" name = "type" value = "" {% if type %} checked {% endif %}> Test Type <br/>
+			<input type = "checkbox" name = "type" value = "True" {% if type %} checked {% endif %}> Test Type <br/>
 
-			<input type = "checkbox" name = "time" value = "" {% if time %} checked {% endif %}> Time Frame <br/>
+			Time Frame: <br/>
+
+			<input type = "radio" name = "time" value = "all" {% if time == 'all' %} checked {% endif %}> All <br/>
+
+			<input type = "radio" name = "time" value = "year" {% if time == 'year' %} checked {% endif %}> Yearly <br/>
+
+			<input type = "radio" name = "time" value = "month" {% if time == 'month' %} checked {% endif %}> Monthly <br/>
+
+			<input type = "radio" name = "time" value = "week" {% if time == 'week' %} checked {% endif %}> Weekly <br/>
 
 			<input type = "submit" value = "submit"/>
 		</form>
 
+		{% if messages %}
+			{% for message in messages %}
+				{% if message.tags == 'success' %}
+					<h2> {{ message}} </h2>
+				{% endif %}
+			{% endfor %}
+		{% endif %}
+
+		<FORM action="/home/">
+			{% csrf_token %}
+			<INPUT Type="submit" VALUE="Back">
+		</FORM><br/>
 	</body>
 
 </html>
