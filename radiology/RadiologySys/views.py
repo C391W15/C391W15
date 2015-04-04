@@ -15,6 +15,11 @@ def index(request):
 
 	return render_to_response('RadiologySys/home.html', {'class': myClass}, context)
 
+# the user documentation/help section
+def help(request):
+	context = RequestContext(request)
+	return render_to_response('RadiologySys/help.html', {}, context)
+
 #upload images and attach them to a radiology record
 def upload_images(request):
 	context = RequestContext(request)

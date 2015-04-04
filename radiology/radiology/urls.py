@@ -20,5 +20,6 @@ urlpatterns = patterns('',
 	url(r'^familyDoctorUpdate/', views.update_family_doctor, name='Update Family Doctor'),
 	url(r'^uploadRecord/', views.upload_record, name='Upload Radiology Record'),
 	url(r'^uploadImages/', views.upload_images, name='Upload Images'),
+	url(r'^help/', views.help, name='help'),
 	url(r'^analysis/', views.analysis, name='Data Analysis'),
 )
