@@ -359,6 +359,7 @@ def user_login(request):
 # This module allows the user to find a list of records given a test type and a time frame
 # The results from the executed query is stored in a list and then added to the dictionary of variables accessible 
 # by the html template
+# The query searches based on test date
 #############################################################################################################
 
 def report(request):
@@ -511,13 +512,14 @@ def analysis(request):
 			queryString = selectString + queryString
 		else:
 			queryString = selectString + queryString + groupString
-			
+
 		##########################################################################################
 		# The cursor first creates a temporary table containing person_id, week, month, year, test_type and image_id
 		# The cursor then executes the queryString which extracts the necessary info from the temp table
 		# and groups it based on the chosen parameters
 		# Query is parsed and then inserted into a list which is added to the dictinoary of variables
 		# accessible by the html template
+		# The query is run based on "test_date"
 		##########################################################################################
 
 		cursor = connection.cursor()
