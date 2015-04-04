@@ -1,13 +1,70 @@
 <!DOCTYPE html>
 
 <html>
-	<title>Help</title>
-	<head>Help</head>
+	<head>
+		<title> Help </title>
+		<style>
+			table {
+				border-spacing: 5px;
+			}
+		</style>
+	</head>
 
 	<body>
-	
-		<FORM action="/home/">{% csrf_token %}<INPUT Type="submit" VALUE="Back"></FORM>
-		<br />
+		<h1> Installation Guide</h1>
+		If you wish to install our application on your local machine with the provided source, you need to make sure a few dependencies are installed first.
+		<h3> Django </h3>
+		Django is a web framework based off of python. It can be downloaded <a href=https://www.djangoproject.com>here</a> or installed via pip. The version we used to develop our application is 1.7.6. The documentation that Django provides for installation can be found <a href=https://docs.djangoproject.com/en/1.8/topics/install>here</a> and should be used as a reference for installing django. To test the installation, run the following command in a python shell: "import django; print(django.get_version())". It should output the version that you downloaded, otherwise your installation failed.
+		<h3> MySQL </h3>
+		We are using MySQL (community edition) as our backend. The download page can be found <a href=http://dev.mysql.com/downloads/mysql>here</a>. We are using MySQL Community Server (GPL) 5.6.23. Installation and configuration instructions can be found <a href=http://dev.mysql.com/doc/refman/5.7/en/installing.html>here</a>. It will be necessary to configure your MySQL users and priviledges to enable django to access it. The easiest way to do so is through the MySQL Workbench which can be found <a href=http://dev.mysql.com/downloads/workbench>here</a>. In order to add the users, first start the server and Workbench and then access the users and priviledges page under the management tab in workbench. Create a new account and give it the following parameters:<br/><br/>
+			<table>
+				<tr> 
+					<th>Login Name</th>
+					<th>Password</th>
+					<th>Limits to Host Matching</th>
+				</tr>
+				<tr>
+					<td>cody</td>
+					<td>pass391</td>
+					<td>localhost</td>
+				</tr>
+			</table><br/>
+		To complete the installation of MySQL, you must install the django-mysql connector which can be found <a href=https://dev.mysql.com/downloads/connector/python>here</a>. Follow the documentation provided on the download page to install it.
+		<h3> ngRok </h3>
+		ngRok is an application that can be used to convert your laptop/desktop into a proxy to host your webpage to the internet. ngRok can be found <a href=https://ngrok.com>here</a> and to install you simply need to put the downloaded file into your bin (or just run it).
+		<h3> Running the server </h3>
+		Before you can run the server, you must make sure the database is populated. Ensure that a schema "radiology" has been created in the database. Then navigate to the directory containing the source code (.../radiology) and enter in the terminal: "python manage.py migrate". This command will populate the MySQL database with the necessary tables and constraints. Afterwards, run our population script by entering "python population.py" in the terminal. There should be verbose output informing you of when it is done. <br/><br/>
+
+		After the database is populated, to run the server, enter "python manage.py runserver" into the terminal while in the same directory as before. The terminal will indicate the ip address and port number with which python is currently hosted. Enter that ip address into your browser to access the webpage. The default page is a login screen and logins must be known in order to test the modules. For your reference, if the population script is used, here are some logins for each of the class types:<br/><br/>
+			<table>
+				<tr>
+					<th>Class</th>
+					<th>Username</th>
+					<th>Password</th>
+				</tr>
+				<tr>
+					<td>Admin</td>
+					<td>akt</td>
+					<td>bar</td>
+				</tr>
+				<tr>
+					<td>Patient</td>
+					<td>cdingram</td>
+					<td>foo</td>
+				</tr>
+				<tr>
+					<td>Doctor</td>
+					<td>ondra</td>
+					<td>bar</td>
+				</tr>
+				<tr>	
+					<td>Radiologist</td>
+					<td>chris</td>
+					<td>foo</td> 
+				</tr>
+			</table>
+		If you wish to expose the server to the internet, simply open up a new terminal, and (assuming ngrok is installed properly) run "ngrok [port number]". Ngrok will then provide you with a domain name which can be used to access the webpage from anywhere on the internet.
+		<h1> Modules </h1>
 		<h3>Change Password</h3>
 		In order to change your password, simply click on the change password button on the homepage
 		and enter a new password twice, then submit. You will not be able to enter your current password.
@@ -19,19 +76,26 @@
 		<h3>User Managment</h3>
 		In order to use the user managment model, you must login as an admin. Click the user managment button, 
 		and you will be taken to the user managment menu. Here you can select either new user, update user, or update family doctor.
-		<h5>New User</h5>
+		<h3>New User</h3>
 		If you select new user, you will be taken to a page with a form containing all the neccessary information to create a new user.
 		Enter the information properly (unique ID, proper date format, etc.) and click submit to create a new user.
-		<h5>Update User</h5>
+		<h3>Update User</h3>
 		If you select update user, you will be taken to a page with a search bar and will be prompted to enter the username of the user
 		which you wish to update. If you enter an existing user, you will then be shown a form containing all of the users information. Once
 		you update the fields of your choice, click the submit button at the bottom to save the users information.
-		<h5>Update Family Doctor</h5>
+		<h3>Update Family Doctor</h3>
 		If you select update family doctor, you will be taken to a page that simply has a dropdown for doctor and dropdown for patient. Select the 
 		doctor and patient you wish to create a relationship between, and click the submit button to save it.
 		<br />
 		<h3>Upload Module</h3>
 		In order to upload a radiology record, you must be logged in as a radiologist. To upload a record, simply click the upload record button on the homepage, and you will be brought to a page with all of the necessary fields to upload a record. Enter all necessary information and then click submit to enter the record. To upload an image, simply click the upload images button on the homepage. You will then be taken to a page where you can upload an image and attach it to an existing record. Note that you must supply all three sizes of image (thumbnail, regular, large).
+		<h3>Get Report</h3>
+		In order to get a report, you must be logged in as an admin. This report will return the first name, address and phone number and test date (note: not prescribing date) of the first record of a given patient for the given disease in the specified time frame. If no records are found, a warning will be raised. All fields must be filled in in order to generate the report.
+		<h3>Get OLAP Report</h3>
+		In order to get an OLAP report, you must be logged in as an admin. This report will return the number of images based on given parameters. To get the report, simply check off the parameters you wish to query for (patient name, test type, time frame) and a table will be produced with columns representing the parameters you have selected and an additional column for the number of images. Note: "All" is equivalent to not selecting a time frame as it implies that you want the total number of images sorted by the other parameters. Similarly, not selecting anything (and leaving time frame at "all") is equivalent to selecting the total number of images in the database. If no images are found in the database, a warning will be raised.
+
+		<FORM action="/home/">{% csrf_token %}<INPUT Type="submit" VALUE="Back"></FORM>
+		<br />
 
 	</body>
 <html/>

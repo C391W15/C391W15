@@ -144,6 +144,7 @@ def populate():
 			print(i)
 			addImage(i)
 
+	print("Population complete")
 
 def addPerson(first, last, address, email, phone):
 	p = Persons(first_name = first, last_name = last, address = address, email = email, phone = phone)
