@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html>
+	<title>Help</title>
+	<head>Help</head>
+
+	<body>
+	
+		<FORM action="/home/">{% csrf_token %}<INPUT Type="submit" VALUE="Back"></FORM>
+		<br />
+		<h3>Change Password</h3>
+		In order to change your password, simply click on the change password button on the homepage
+		and enter a new password twice, then submit. You will not be able to enter your current password.
+		<br />
+		<h3>Change Information</h3>
+		In order to change your password, simply click on the change info button on the homepage and 
+		enter the information you wish to change and click submit.
+		<br />
+		<h3>User Managment</h3>
+		In order to use the user managment model, you must login as an admin. Click the user managment button, 
+		and you will be taken to the user managment menu. Here you can select either new user, update user, or update family doctor.
+		<h5>New User</h5>
+		If you select new user, you will be taken to a page with a form containing all the neccessary information to create a new user.
+		Enter the information properly (unique ID, proper date format, etc.) and click submit to create a new user.
+		<h5>Update User</h5>
+		If you select update user, you will be taken to a page with a search bar and will be prompted to enter the username of the user
+		which you wish to update. If you enter an existing user, you will then be shown a form containing all of the users information. Once
+		you update the fields of your choice, click the submit button at the bottom to save the users information.
+		<h5>Update Family Doctor</h5>
+		If you select update family doctor, you will be taken to a page that simply has a dropdown for doctor and dropdown for patient. Select the 
+		doctor and patient you wish to create a relationship between, and click the submit button to save it.
+		<br />
+		<h3>Upload Module</h3>
+		In order to upload a radiology record, you must be logged in as a radiologist. To upload a record, simply click the upload record button on the homepage, and you will be brought to a page with all of the necessary fields to upload a record. Enter all necessary information and then click submit to enter the record. To upload an image, simply click the upload images button on the homepage. You will then be taken to a page where you can upload an image and attach it to an existing record. Note that you must supply all three sizes of image (thumbnail, regular, large).
+
+	</body>
+<html/>
