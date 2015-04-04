@@ -14,6 +14,7 @@
 	<body>
 
 	<h1> Report Generator </h1>
+<!-- Section to display warning messages if any -->
 		{% if messages %}
 			<ul>
 			{% for message in messages %}
@@ -26,6 +27,7 @@
 			</ul>
 		{% endif %}
 
+<!-- Form used to enter parameters -->
 		<form id="report_params" method="post" action="">
 			{% csrf_token %}
 
@@ -38,6 +40,7 @@
 			<input type="submit" value="submit"/>
 		</form>
 
+<!-- Section to display dynamically created table -->
 		{% if messages %}
 			<ul>
 			{% for message in messages %}
@@ -59,7 +62,7 @@
 			{% endfor %}
 			</ul>
 		{% endif %}
-
+<!-- Back button -->
 		<Form action="/home/">
 			{% csrf_token %}
 			<input Type="submit" VALUE="Back">

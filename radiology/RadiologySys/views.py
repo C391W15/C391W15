@@ -352,6 +352,12 @@ def user_login(request):
 	    return render_to_response('RadiologySys/login.html', {}, context)
 
 
+#############################################################################################################
+# This module allows the user to find a list of records given a test type and a time frame
+# The results from the executed query is stored in a list and then added to the dictionary of variables accessible 
+# by the html template
+#############################################################################################################
+
 def report(request):
 	context = RequestContext(request)
 
@@ -362,19 +368,23 @@ def report(request):
 	    tstart = request.POST['time_start']
 	    tend = request.POST['time_end']
 
-	    # Save previous parameters to display
+		# Dictionary used to store values accessible by html template
+	    # Contains the previously entered parameters
 	    prev = {"diagnosis": diagnosis,
 	            "time_start": tstart,
 	            "time_end": tend}
 
+	   	# Error handling
 	    # Ensures valid time frame
 	    if tstart > tend:
 	        messages.warning(request, "Error: Start date after end date")
 	        return render_to_response('RadiologySys/report.html', prev, context)
+	   	# Ensures valid fields
 	    elif tstart == "" or tend == "" or diagnosis == "":
 	    	messages.warning(request, "Error: Ensure all fields are filled in")
 	    	return render_to_response('RadiologySys/report.html', prev, context)
 	    else:
+	    # Execute query
 	        cursor = connection.cursor()
 	        cursor.execute('''Select    p.first_name, p.address, p.phone, min(r.test_date)
 	                            from    RadiologySys_persons p, RadiologySys_radiology_record r 
@@ -384,7 +394,7 @@ def report(request):
 	                                    r.test_date <= %s
                                 group by p.first_name, p.address, p.phone''', [diagnosis, tstart, tend])
 	        result = []
-	        # Convert query to presentable format
+	        # Append query to list for displaying in html template
 	        for row in cursor.fetchall():
 	            for i in range(len(row)):
 	                result.append(row[i])
@@ -397,13 +407,24 @@ def report(request):
 	        	messages.success(request, " ")
 	        	return render_to_response('RadiologySys/report.html', prev, context)
 
-	else:
+	else: # HttpGET request
 	    return render_to_response('RadiologySys/report.html', {}, context)
+
+#############################################################################################################
+# This module allows the user to select up to 3 options to sort by: Test type, Patient name, and a Time frame
+# Test type and Patient name are represented as checkboxes and Time frame is represented as radiobuttons where
+# "All" is the default and is equivalent to no Time frame selected
+# This module dynamically builds a query string depending on the options selected and returns the query that is
+# executed. The query is stored in a list and then added to the variables dictionary to view in an html template
+#############################################################################################################
 
 def analysis(request):
 	context = RequestContext(request)
 
 	if request.method == 'POST':
+
+		# Determine which options were selected
+		##########################################################################################
 		try:
 			time = request.POST['time']
 		except:
@@ -417,19 +438,26 @@ def analysis(request):
 		except:
 			tp = None
 
+		# Dictionary used to store values accessible by html template
+		# Contains the previous selected options
 		prev = {'time': time,
 				'name': name,
 				'type': tp}
-
+		##########################################################################################
+		# Section where query string is built
+		# sortString is the string built for displaying the "sorted by" message in template
+		# query string is broken up into 3 parts and concatenated together at the end
+		##########################################################################################
 		sortString = "" # No selection (default)
+
 		selectString = "Select count(image_id)"
 		queryString = " From temp"
 		groupString = " Group by "
-		length = 1
+		length = 1 # Variable to track number of columns needed (dynamic depending on solution)
 
-		flag = (False, "")
+		flag = (False, "") # Variable to track whether time is represented as year or year + week or year + month
 		if time != "all": # Time was selected
-			sortString = time # Time is either week/month/year
+			sortString = time 
 			selectString += ", year"
 			groupString += "year"
 			length += 1
@@ -469,17 +497,25 @@ def analysis(request):
 			groupString += "person_id, test_type"
 			length += 2
 
-		print(sortString)
+		# Creating message for display
 		if name == None and tp == None and time == "all":
 			messages.success(request, "Displaying Total number of images ever taken")
 		else:
 			messages.success(request, "Displaying Total number of images, sorted by " + sortString)
 
+		# Concatenating queryString
 		if groupString == " Group by ":
 			queryString = selectString + queryString
 		else:
 			queryString = selectString + queryString + groupString
-		print(queryString)
+			
+		##########################################################################################
+		# The cursor first creates a temporary table containing person_id, week, month, year, test_type and image_id
+		# The cursor then executes the queryString which extracts the necessary info from the temp table
+		# and groups it based on the chosen parameters
+		# Query is parsed and then inserted into a list which is added to the dictinoary of variables
+		# accessible by the html template
+		##########################################################################################
 
 		cursor = connection.cursor()
 
@@ -494,14 +530,12 @@ def analysis(request):
 									on i.record_id_id = r.record_id)''')
 		cursor.execute(queryString)
 
-		result = []
+		result = [] # List to store query results
 
-		print(flag)
 		for row in cursor.fetchall():
-			print(row)
 			for i in range(len(row)):
-				if flag[0]:
-					if i == 2:
+				if flag[0]: # if Week or Month is selected
+					if i == 2: # roww[2] represents "week" or "month" in the query (based on my queryString)
 						if flag[1] == "week":
 							temp = "week " + str(row[i])
 							result.insert(0, temp)
@@ -512,17 +546,19 @@ def analysis(request):
 				else:
 					result.insert(0, row[i])
 
-		print(result)
+		cursor.close()
 
 		if len(result) == 0:
+			# Error handling
 			messages.warning(request, "No images in the database")
 			return render_to_response('RadiologySys/analysis.html', prev, context)
 		else:
-			prev['results'] = result
+			# Add values to dicionary for parsing in html template
+			prev['results'] = result 
 			prev['length'] = length
 			return render_to_response('RadiologySys/analysis.html', prev, context)
 
-	else:
+	else: # Request was a GET request
 		return render_to_response('RadiologySys/analysis.html', {'time': 'all'}, context)
 
 def myLogin(username, password):
