@@ -26,19 +26,22 @@ def upload_images(request):
 	context = RequestContext(request)
 
 	if request.method == 'POST':
-		form = ImagesForm(request.POST)
+		form = ImagesForm(request.POST, request.FILES)
 		
 		if form.is_valid():			
 
-			# get the three image sizes
 			thumb = form.cleaned_data['thumbnail']
 			reg = form.cleaned_data['regular_size']
 			full = form.cleaned_data['full_size']
-
-			# ensure none of the image sizes are missing
+			print(thumb, reg, full)
+			# ensure no image is missing
 			if thumb != None and reg != None and full != None:
-				form.save()
 				# success
+				f = form.save(commit = False)
+				f.thumbnail = thumb
+				f.regular_size = reg
+				f.full_size = full
+				f.save()
 				messages.success(request, 'Images Uploaded')
 				return render_to_response('RadiologySys/uploadImages.html', {'form': form}, context) 
 			else:
