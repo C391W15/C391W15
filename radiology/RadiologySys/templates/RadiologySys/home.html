@@ -44,6 +44,7 @@
 			<form action="/analysis/" method="GET">
 				<input type="submit" value="Get OLAP Report"/>
 			</form>
+			<br/>
 		{% endif %}
 
 		{% if class == 'Radiologist' %}
@@ -61,8 +62,14 @@
 
 			<input type="submit" value="Upload Images" />
 			</form>
+			<br/>
 
 		{% endif %}
+
+		<form action = "/search/" method="GET">
+		<input type="submit" value="Search"/>
+		</form>
+		<br/>
 
 	</body>
 <html/>
