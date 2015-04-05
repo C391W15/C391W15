@@ -346,6 +346,7 @@ def user_login(request):
 		if user:
 			#store class
 			request.session['class'] = user.get_classType_display()
+			request.session['myID'] = (user.person_id).person_id
 
 			return HttpResponseRedirect('/home/')
 
@@ -578,3 +579,368 @@ def myLogin(username, password):
 		return user
 	else: 
 		return None
+
+
+def search(request):
+	context = RequestContext(request)
+	# Requird for user security
+	c = request.session.get('class')
+	myID = request.session.get('myID')
+
+	if request.method == 'POST':
+
+		# Get keywords and time frame
+		key_words = request.POST['key_words']
+		tstart = request.POST['time_start']
+		tend = request.POST['time_end']
+
+		# Split up the keywords into singular varchars
+		ks = key_words.split(" ")
+
+		# Save previous parameters to display
+		prev = {"key_words": ks,
+				"time_start": tstart,
+				"time_end": tend}
+		
+		# Ensures valid time frame
+		if tstart > tend:
+			messages.warning(request, "Error: Start date after end date")
+			return render_to_response('RadiologySys/search.html', prev, context)
+
+		elif (tstart == '' and tend != ''):
+			messages.warning(request, "Error: Please enter both dates")
+			return render_to_response('RadiologySys/search.html', prev, context)
+
+		elif (tstart != '' and tend == ''):
+			messages.warning(request, "Error: Please enter both dates")
+			return render_to_response('RadiologySys/search.html', prev, context)
+
+		else:
+			result = []
+
+			if (tstart == '' and tend == ''):
+				if c == 'Admin':
+					for k in ks:
+
+						cursor = connection.cursor()
+						cursor.execute('''SELECT Distinct	p.first_name,
+															d.first_name,
+															i.first_name,
+															r.test_type,
+															r.prescribing_date,
+															r.test_date,
+															r.diagnosis,
+															r.description
+										from 	(RadiologySys_persons p, RadiologySys_persons d, RadiologySys_persons i, RadiologySys_radiology_record r)
+										where  	(p.person_id = r.patient_id_id and
+												d.person_id = r.doctor_id_id and
+												i.person_id = r.radiologist_id_id) or
+
+												p.first_name LIKE %s or
+												p.last_name LIKE %s or
+												
+												d.first_name LIKE %s or
+												d.last_name LIKE %s or
+												
+												i.first_name LIKE %s or
+												i.last_name LIKE %s or
+
+												r.test_type LIKE %s or
+												r.diagnosis LIKE %s or
+												r.description LIKE %s ''', [k, k, k, k, k, k, '%' + k + '%', '%' + k + '%', '%' + k + '%'])
+
+						for row in cursor.fetchall():
+							for i in range(len(row)):
+								result.append(row[i])
+
+				if c == 'Doctor':
+					print("Test")
+					cursor = connection.cursor()
+					cursor.execute('''SELECT Distinct p.first_name
+									FROM RadiologySys_persons p, radiologysys_family_doctor f, RadiologySys_radiology_record r
+									WHERE f.doctor_id_id = r.doctor_id_id and
+										p.person_id = f.patient_id_id
+									''')
+					patients = []
+					for row in cursor.fetchall():
+						for i in range(len(row)):
+							patients.append(row[i])
+					print(patients)
+
+					for k in ks:
+						print("Test 2")
+						cursor = connection.cursor()
+						cursor.execute('''SELECT Distinct	p.first_name,
+															d.first_name,
+															i.first_name,
+															r.test_type,
+															r.prescribing_date,
+															r.test_date,
+															r.diagnosis,
+															r.description
+										from 	(RadiologySys_persons p, RadiologySys_persons d, RadiologySys_persons i, RadiologySys_radiology_record r)
+										where  	(p.person_id = r.patient_id_id and
+												d.person_id = r.doctor_id_id and
+												i.person_id = r.radiologist_id_id) or
+
+												p.first_name LIKE %s or
+												p.last_name LIKE %s or
+												
+												d.first_name LIKE %s or
+												d.last_name LIKE %s or
+												
+												i.first_name LIKE %s or
+												i.last_name LIKE %s or
+
+												r.test_type LIKE %s or
+												r.diagnosis LIKE %s or
+												r.description LIKE %s 
+
+										''', [k, k, k, k, k, k, '%' + k + '%', '%' + k + '%', '%' + k + '%'])
+						for row in cursor.fetchall():
+							if row[0] in patients:
+								for i in range(len(row)):
+									result.append(row[i])
+
+						print(result)
+
+				if c == 'Radiologist':
+					for k in ks:
+
+						cursor = connection.cursor()
+						cursor.execute('''SELECT Distinct	p.first_name,
+															d.first_name,
+															i.first_name,
+															r.test_type,
+															r.prescribing_date,
+															r.test_date,
+															r.diagnosis,
+															r.description
+										from 	(RadiologySys_persons p, RadiologySys_persons d, RadiologySys_persons i, RadiologySys_radiology_record r)
+										where  	r.radiologist_id_id = %s and
+												(p.person_id = r.patient_id_id and
+												d.person_id = r.doctor_id_id and
+												i.person_id = r.radiologist_id_id) or
+
+												p.first_name LIKE %s or
+												p.last_name LIKE %s or
+												
+												d.first_name LIKE %s or
+												d.last_name LIKE %s or
+												
+												i.first_name LIKE %s or
+												i.last_name LIKE %s or
+
+												r.test_type LIKE %s or
+												r.diagnosis LIKE %s or
+												r.description LIKE %s ''', [myID, k, k, k, k, k, k, '%' + k + '%', '%' + k + '%', '%' + k + '%'])
+
+						for row in cursor.fetchall():
+							for i in range(len(row)):
+								result.append(row[i])
+
+
+				if c == 'Patient':
+					for k in ks:
+
+						cursor = connection.cursor()
+						cursor.execute('''SELECT Distinct	p.first_name,
+															d.first_name,
+															i.first_name,
+															r.test_type,
+															r.prescribing_date,
+															r.test_date,
+															r.diagnosis,
+															r.description
+										from 	(RadiologySys_persons p, RadiologySys_persons d, RadiologySys_persons i, RadiologySys_radiology_record r)
+										where  	r.patient_id_id = %s and
+												(p.person_id = r.patient_id_id and
+												d.person_id = r.doctor_id_id and
+												i.person_id = r.radiologist_id_id) or
+
+												p.first_name LIKE %s or
+												p.last_name LIKE %s or
+												
+												d.first_name LIKE %s or
+												d.last_name LIKE %s or
+												
+												i.first_name LIKE %s or
+												i.last_name LIKE %s or
+
+												r.test_type LIKE %s or
+												r.diagnosis LIKE %s or
+												r.description LIKE %s ''', [myID, k, k, k, k, k, k, '%' + k + '%', '%' + k + '%', '%' + k + '%'])
+
+						for row in cursor.fetchall():
+							for i in range(len(row)):
+								result.append(row[i])
+
+			else:
+				if c == 'Admin':
+					for k in ks:
+
+						cursor = connection.cursor()
+						cursor.execute('''SELECT Distinct	p.first_name,
+															d.first_name,
+															i.first_name,
+															r.test_type,
+															r.prescribing_date,
+															r.test_date,
+															r.diagnosis,
+															r.description
+										from 	(RadiologySys_persons p, RadiologySys_persons d, RadiologySys_persons i, RadiologySys_radiology_record r)
+										where  	(p.person_id = r.patient_id_id and
+												d.person_id = r.doctor_id_id and
+												i.person_id = r.radiologist_id_id and 
+												r.test_date >= %s and
+	                                    		r.test_date <= %s) or
+
+												p.first_name LIKE %s or
+												p.last_name LIKE %s or
+												
+												d.first_name LIKE %s or
+												d.last_name LIKE %s or
+												
+												i.first_name LIKE %s or
+												i.last_name LIKE %s or
+
+												r.test_type LIKE %s or
+												r.diagnosis LIKE %s or
+												r.description LIKE %s ''', [tstart, tend, k, k, k, k, k, k, '%' + k + '%', '%' + k + '%', '%' + k + '%'])
+
+						for row in cursor.fetchall():
+							for i in range(len(row)):
+								result.append(row[i])
+
+				if c == 'Doctor':
+					cursor = connection.cursor()
+					cursor.execute('''SELECT Distinct p.first_name
+									FROM RadiologySys_persons p, radiologysys_family_doctor d, RadiologySys_radiology_record r
+									WHERE f.doctor_id_id = r.doctor_id_id and
+										p.person_id = f.patient_id_id
+									''')
+					patients = []
+					for row in cursor.fetchall():
+						for i in range(len(row)):
+							patients.append(row[i])
+
+					for k in ks:
+
+						cursor = connection.cursor()
+						cursor.execute('''SELECT Distinct	p.first_name,
+															d.first_name,
+															i.first_name,
+															r.test_type,
+															r.prescribing_date,
+															r.test_date,
+															r.diagnosis,
+															r.description
+										from 	(RadiologySys_persons p, RadiologySys_persons d, RadiologySys_persons i, RadiologySys_radiology_record r)
+										where  	(p.person_id = r.patient_id_id and
+												d.person_id = r.doctor_id_id and
+												i.person_id = r.radiologist_id_id and
+												r.test_date >= %s and
+	                                    		r.test_date <= %s) or
+
+												p.first_name LIKE %s or
+												p.last_name LIKE %s or
+												
+												d.first_name LIKE %s or
+												d.last_name LIKE %s or
+												
+												i.first_name LIKE %s or
+												i.last_name LIKE %s or
+
+												r.test_type LIKE %s or
+												r.diagnosis LIKE %s or
+												r.description LIKE %s ''', [tstart, tend, k, k, k, k, k, k, '%' + k + '%', '%' + k + '%', '%' + k + '%'])
+
+						for row in cursor.fetchall():
+							for i in range(len(row)):
+								if (i%8 == 0) and (row[i] in patients):
+									result.append(row[i])
+								else:
+									i+=8
+
+				if c == 'Radiologist':
+					for k in ks:
+
+						cursor = connection.cursor()
+						cursor.execute('''SELECT Distinct	p.first_name,
+															d.first_name,
+															i.first_name,
+															r.test_type,
+															r.prescribing_date,
+															r.test_date,
+															r.diagnosis,
+															r.description
+										from 	(RadiologySys_persons p, RadiologySys_persons d, RadiologySys_persons i, RadiologySys_radiology_record r)
+										where  	(p.person_id = r.patient_id_id and
+												d.person_id = r.doctor_id_id and
+												i.person_id = r.radiologist_id_id and
+												r.test_date >= %s and
+	                                    		r.test_date <= %s) or
+
+												p.first_name LIKE %s or
+												p.last_name LIKE %s or
+												
+												d.first_name LIKE %s or
+												d.last_name LIKE %s or
+												
+												i.first_name LIKE %s or
+												i.last_name LIKE %s or
+
+												r.test_type LIKE %s or
+												r.diagnosis LIKE %s or
+												r.description LIKE %s ''', [tstart, tend, k, k, k, k, k, k, '%' + k + '%', '%' + k + '%', '%' + k + '%'])
+
+						for row in cursor.fetchall():
+							for i in range(len(row)):
+								result.append(row[i])
+
+
+				if c == 'Patient':
+					for k in ks:
+
+						cursor = connection.cursor()
+						cursor.execute('''SELECT Distinct	p.first_name,
+															d.first_name,
+															i.first_name,
+															r.test_type,
+															r.prescribing_date,
+															r.test_date,
+															r.diagnosis,
+															r.description
+										from 	(RadiologySys_persons p, RadiologySys_persons d, RadiologySys_persons i, RadiologySys_radiology_record r)
+										where  	r.patient_id_id = %s and
+												(p.person_id = r.patient_id_id and
+												d.person_id = r.doctor_id_id and
+												i.person_id = r.radiologist_id_id and
+												r.test_date >= %s and
+	                                   		 	r.test_date <= %s) or
+
+												p.first_name LIKE %s or
+												p.last_name LIKE %s or
+												
+												d.first_name LIKE %s or
+												d.last_name LIKE %s or
+												
+												i.first_name LIKE %s or
+												i.last_name LIKE %s or
+
+												r.test_type LIKE %s or
+												r.diagnosis LIKE %s or
+												r.description LIKE %s ''', [myID, tstart, tend k, k, k, k, k, k, '%' + k + '%', '%' + k + '%', '%' + k + '%'])
+
+						for row in cursor.fetchall():
+							for i in range(len(row)):
+								result.append(row[i])
+
+
+			prev['results'] = result
+			messages.success(request, " ")
+			return render_to_response('RadiologySys/search.html', prev, context)
+
+	else:
+		return render_to_response('RadiologySys/search.html', {}, context)
+

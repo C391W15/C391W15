@@ -22,4 +22,5 @@ urlpatterns = patterns('',
 	url(r'^uploadImages/', views.upload_images, name='Upload Images'),
 	url(r'^help/', views.help, name='help'),
 	url(r'^analysis/', views.analysis, name='Data Analysis'),
+	url(r'^search/', views.search, name='Search')
 )
